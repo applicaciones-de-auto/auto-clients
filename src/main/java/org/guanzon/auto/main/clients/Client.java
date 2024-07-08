@@ -306,12 +306,12 @@ public class Client implements GRecord{
         return joValue;
     }
     
-    public JSONObject loadJSONFile(){
-        poJSON = poClient.loadJSONFile();
-        pnEditMode = poClient.getEditMode();
-        
-        return poJSON;
-    }
+//    public JSONObject loadJSONFile(){
+//        poJSON = poClient.loadJSONFile();
+//        pnEditMode = poClient.getEditMode();
+//        
+//        return poJSON;
+//    }
     
     public ArrayList getAddressList(){return poAddress.getAddressList();}
     public void setAddressList(ArrayList foObj){this.poAddress.setAddressList(foObj);}
