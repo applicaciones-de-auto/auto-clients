@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.main;
+package org.guanzon.auto.main.clients;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -14,8 +14,8 @@ import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
-import org.guanzon.auto.clients.controller.Vehicle_Registration;
-import org.guanzon.auto.clients.controller.Vehicle_Serial_Master;
+import org.guanzon.auto.controller.clients.Vehicle_Registration;
+import org.guanzon.auto.controller.clients.Vehicle_Serial_Master;
 import org.guanzon.auto.general.SearchDialog;
 import org.json.simple.JSONObject;
 

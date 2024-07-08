@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.resultSet2XML;
+package org.guanzon.auto.resultSet2XML.clients;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,19 +38,19 @@ public class ClientEmail  {
         System.setProperty("sys.default.path.metadata", "D:/GGC_Maven_Systems/config/metadata/Model_Client_Email.xml");
         
         
-        String lsSQL = "SELECT" + 
-                    " sEmailIDx " + //1
-                    ", sClientID " + //2
-                    ", sEmailAdd " + //3
-                    ", cOwnerxxx " + //4
-                    ", cPrimaryx " + //5
-                    ", cRecdStat " + //6
-                    ", sEntryByx " + //7
-                    ", dEntryDte " + //8
-                    ", sModified " + //9
-                    ", dModified " + //10
-                " FROM client_email_address " +
-                " WHERE 0=1";
+        String lsSQL =    "  SELECT    "              
+                        + "  sEmailIDx " //1          
+                        + ", sClientID " //2          
+                        + ", sEmailAdd " //3          
+                        + ", cOwnerxxx " //4          
+                        + ", cPrimaryx " //5          
+                        + ", cRecdStat " //6          
+                        + ", sEntryByx " //7          
+                        + ", dEntryDte " //8          
+                        + ", sModified " //9          
+                        + ", dModified " //10         
+                        + "FROM client_email_address "
+                        + "WHERE 0=1";
         
         
         ResultSet loRS = instance.executeQuery(lsSQL);

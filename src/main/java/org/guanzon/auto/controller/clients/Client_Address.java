@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.controller;
+package org.guanzon.auto.controller.clients;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -199,13 +199,12 @@ public class Client_Address {
     
     public Object removeAddress(int fnRow){
         JSONObject loJSON = new JSONObject();
-        if(paAddress.get(fnRow).getEntryBy() == null){
+        if(paAddress.get(fnRow).getEntryBy().isEmpty()){
             poAddresses.removeAddresses(fnRow);
             paAddress.remove(fnRow);
             
-            
-            System.out.println("saveAddresses Client Address Size : " + getAddressList().size());
-            System.out.println("saveAddresses Addresses Size : " + poAddresses.getAddressesList().size());
+            System.out.println("removeAddress Client Address Size : " + getAddressList().size());
+            System.out.println("removeAddress Addresses Size : " + poAddresses.getAddressesList().size());
         } else {
             loJSON.put("result", "error");
             loJSON.put("message", "You cannot remove Client Address that already saved, Deactivate it instead.");

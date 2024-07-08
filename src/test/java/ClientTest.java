@@ -1,6 +1,6 @@
 
 import org.guanzon.appdriver.base.GRider;
-import org.guanzon.auto.clients.main.Client;
+import org.guanzon.auto.main.clients.Client;
 import org.json.simple.JSONObject;
 
 /*

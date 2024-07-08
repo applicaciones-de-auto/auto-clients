@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.controller;
+package org.guanzon.auto.controller.clients;
 
 import java.util.ArrayList;
 import org.guanzon.appdriver.base.GRider;
@@ -95,11 +95,21 @@ public class Addresses {
         
         int lnCtr;
         String lsSQL;
-        
+        int lnSize = paAddresses.size() -1;
         for (lnCtr = 0; lnCtr <= paAddresses.size() -1; lnCtr++){
+//            if(lnCtr>0){
+//                if(paAddresses.get(lnCtr).getBrgyID().isEmpty() || paAddresses.get(lnCtr).getTownID().isEmpty()){
+//                    paAddresses.remove(lnCtr);
+//                }
+//            }
+            
             if(lnCtr>0){
                 if(paAddresses.get(lnCtr).getBrgyID().isEmpty() || paAddresses.get(lnCtr).getTownID().isEmpty()){
                     paAddresses.remove(lnCtr);
+                    lnCtr++;
+                    if(lnCtr > lnSize){
+                        break;
+                    }
                 }
             }
             
