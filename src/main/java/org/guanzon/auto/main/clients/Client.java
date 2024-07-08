@@ -3,17 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.main;
+package org.guanzon.auto.main.clients;
 
 import java.util.ArrayList;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
-import org.guanzon.auto.clients.controller.Client_Address;
-import org.guanzon.auto.clients.controller.Client_Email;
-import org.guanzon.auto.clients.controller.Client_Master;
-import org.guanzon.auto.clients.controller.Client_Mobile;
-import org.guanzon.auto.clients.controller.Client_Social_Media;
+import org.guanzon.auto.controller.clients.Client_Address;
+import org.guanzon.auto.controller.clients.Client_Email;
+import org.guanzon.auto.controller.clients.Client_Master;
+import org.guanzon.auto.controller.clients.Client_Mobile;
+import org.guanzon.auto.controller.clients.Client_Social_Media;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
 import org.guanzon.auto.validator.clients.ValidatorInterface;
 import org.json.simple.JSONObject;
@@ -305,6 +305,13 @@ public class Client implements GRecord{
         }
         return joValue;
     }
+    
+//    public JSONObject loadJSONFile(){
+//        poJSON = poClient.loadJSONFile();
+//        pnEditMode = poClient.getEditMode();
+//        
+//        return poJSON;
+//    }
     
     public ArrayList getAddressList(){return poAddress.getAddressList();}
     public void setAddressList(ArrayList foObj){this.poAddress.setAddressList(foObj);}

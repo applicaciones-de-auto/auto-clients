@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.main;
+package org.guanzon.auto.controller.clients;
 
 /**
  *
  * @author Arsiela
  */
-public class Sales_Executive {
+public class Sales_Agent_Master {
     
 }

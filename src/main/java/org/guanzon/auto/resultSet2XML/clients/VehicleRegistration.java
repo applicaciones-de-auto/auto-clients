@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.resultSet2XML;
+package org.guanzon.auto.resultSet2XML.clients;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,23 +38,23 @@ public class VehicleRegistration  {
         System.setProperty("sys.default.path.metadata", "D:/GGC_Maven_Systems/config/metadata/Model_Vehicle_Registration.xml");
         
         
-        String lsSQL =  " SELECT " +
-                "  sSerialID," +
-                "  sCSRValNo," +
-                "  sPNPClrNo," +
-                "  sCRNoxxxx," +
-                "  sCRENoxxx," +
-                "  sRegORNox," +
-                "  sFileNoxx," +
-                "  sPlateNox," +
-                "  dRegister," +
-                "  sPlaceReg," +
-                "  sEntryByx," +
-                "  dEntryDte," +
-                "  sModified," +
-                "  dModified" +
-                " FROM vehicle_serial_registration"
-                + " WHERE 0=1";
+        String lsSQL =    "  SELECT     "                        
+                        + "  sSerialID  " //1                    
+                        + ", sCSRValNo  " //2                    
+                        + ", sPNPClrNo  " //3                    
+                        + ", sCRNoxxxx  " //4                    
+                        + ", sCRENoxxx  " //5                    
+                        + ", sRegORNox  " //6                    
+                        + ", sFileNoxx  " //7                    
+                        + ", sPlateNox  " //8                    
+                        + ", dRegister  " //9                    
+                        + ", sPlaceReg  " //10                   
+                        + ", sEntryByx  " //11                   
+                        + ", dEntryDte  " //12                   
+                        + ", sModified  " //13                   
+                        + ", dModified  " //14                   
+                        + "FROM vehicle_serial_registration "    
+                        + " WHERE 0=1 " ;
         
         
         ResultSet loRS = instance.executeQuery(lsSQL);

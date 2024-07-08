@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.controller;
+package org.guanzon.auto.controller.clients;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import org.guanzon.appdriver.agent.ShowDialogFX;
 import org.guanzon.appdriver.base.GRider;
@@ -12,9 +16,11 @@ import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
-import org.guanzon.auto.general.SearchDialog;
 import org.guanzon.auto.model.clients.Model_Client_Master;
+import org.guanzon.auto.general.SearchDialog;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -31,6 +37,9 @@ public class Client_Master implements GRecord{
     public JSONObject poJSON;
     
     Model_Client_Master poClient;
+    
+    String FILE_PATH = "D://GGC_Maven_Systems/json/Client_Master.json";
+    
     
     public Client_Master(GRider foAppDrver, boolean fbWtParent, String fsBranchCd){
         poGRider = foAppDrver;
@@ -94,7 +103,6 @@ public class Client_Master implements GRecord{
             poClient = new Model_Client_Master(poGRider);
             Connection loConn = null;
             loConn = setConnection();
-
             poClient.setClientID(MiscUtil.getNextCode(poClient.getTable(), "sClientID", true, loConn, psBranchCd));
             poClient.newRecord();
             
@@ -115,6 +123,65 @@ public class Client_Master implements GRecord{
         
         return poJSON;
     }
+    
+//    private JSONObject saveJSONFile(){
+//        JSONObject jObj = new JSONObject();
+//        JSONObject jClassObj = poClient.getColValues();
+//        jClassObj.put("pnEditMode", pnEditMode);
+//        // Write the JSONObject to a file
+//        try (FileWriter file = new FileWriter(FILE_PATH)) {
+//            file.write(jClassObj.toJSONString());
+//            System.out.println("JSON file created successfully.");
+//            jObj.put("result","success");
+//            jObj.put("message","JSON file created successfully.");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            jObj.put("result","error");
+//            jObj.put("message","Invalid JSON Path File");
+//        }
+//        return jObj;
+//    }
+    
+//    public JSONObject loadJSONFile(){
+//        poClient = new Model_Client_Master(poGRider);
+//        JSONObject jObj = new JSONObject();
+//        File Delfile = new File(FILE_PATH);
+//        String tempValue = "";
+//        JSONParser parser = new JSONParser();
+//        if (Delfile.exists() && Delfile.isFile()) {
+//
+//            try (FileReader reader = new FileReader(FILE_PATH)) {
+//                Object obj = parser.parse(reader);
+//                JSONObject jsonObject = (JSONObject) obj;
+//                System.out.println(jsonObject);
+//                pnEditMode = Integer.valueOf((String) jsonObject.get("pnEditMode"));
+//                
+//                if(pnEditMode != EditMode.UNKNOWN){
+//                    switch(pnEditMode) {
+//                        case EditMode.ADDNEW:
+//                            jObj = poClient.newRecord();
+//                            break;
+//                        case EditMode.READY:
+//                            jObj = poClient.openRecord((String) jsonObject.get("sClientID"));
+//                            break;
+//                        case EditMode.UPDATE:
+//                            poClient.openRecord((String) jsonObject.get("sClientID"));
+//                            jObj = updateRecord();
+//                            break;
+//                    
+//                    }
+//                    if("error".equals(jObj.get("result"))){
+//                        return jObj;
+//                    }
+//                    jObj = poClient.updateColValues(jsonObject);
+//                }
+//                
+//            } catch (IOException | ParseException e) {
+//                e.printStackTrace();
+//            }
+//        } 
+//        return jObj;
+//    }
 
     @Override
     public JSONObject openRecord(String fsValue) {
@@ -123,7 +190,10 @@ public class Client_Master implements GRecord{
         
         poClient = new Model_Client_Master(poGRider);
         poJSON = poClient.openRecord(fsValue);
-        
+        //poJSON = saveJSONFile();
+        if("error".equals(poJSON.get("result"))){
+            return poJSON;
+        }
         return poJSON;
     }
 
@@ -151,6 +221,11 @@ public class Client_Master implements GRecord{
 //            poJSON.put("message", validator.getMessage());
 //            return poJSON;
 //        }
+
+//        poJSON = saveJSONFile();
+        if("error".equals(poJSON.get("result"))){
+            return poJSON;
+        }
         
         poJSON =  poClient.saveRecord();
         if("error".equalsIgnoreCase((String)checkData(poJSON).get("result"))){
@@ -208,13 +283,6 @@ public class Client_Master implements GRecord{
                                 " ON bb.sTownIDxx = d.sTownIDxx" + 
                             " LEFT JOIN Province e" +
                                 " ON d.sProvIDxx = e.sProvIDxx";
-//        if (fbByCode) {
-//            lsSQL = MiscUtil.addCondition(lsSQL, "a.sClientID = " + SQLUtil.toSQL(fsValue));
-//        } else {
-//            lsSQL = MiscUtil.addCondition(lsSQL, "a.sCompnyNm LIKE " + SQLUtil.toSQL("%" + fsValue + "%"));
-//        }
-        
-        //lsSQL = lsSQL + " GROUP BY a.sClientID";
         JSONObject loJSON;
         String lsValue;
             
@@ -350,9 +418,6 @@ public class Client_Master implements GRecord{
                         + ", IFNULL(b.sProvName, '') sProvName "  
                         + " FROM TownCity a"  
                         + " LEFT JOIN Province b on b.sProvIDxx = a.sProvIDxx";
-
-        //lsSQL =  MiscUtil.addCondition(lsSQL, " a.sTownName LIKE " + SQLUtil.toSQL(fsValue + "%")
-        //                                        + " OR TRIM(CONCAT(a.sTownName, ', ', b.sProvName)) LIKE " + SQLUtil.toSQL("%" +fsValue + "%"));
         
         lsSQL =  MiscUtil.addCondition(lsSQL, "TRIM(CONCAT(a.sTownName, ', ', b.sProvName)) LIKE " + SQLUtil.toSQL("%" +fsValue + "%"));
        

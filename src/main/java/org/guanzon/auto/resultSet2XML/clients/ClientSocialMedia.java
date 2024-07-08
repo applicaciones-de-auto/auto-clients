@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.guanzon.auto.clients.resultSet2XML;
+package org.guanzon.auto.resultSet2XML.clients;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,18 +38,18 @@ public class ClientSocialMedia {
         System.setProperty("sys.default.path.metadata", "D:/GGC_Maven_Systems/config/metadata/Model_Client_Social_Media.xml");
         
         
-        String lsSQL = "SELECT" +
-                    " sSocialID "  + //1
-                    ", sClientID " + //2
-                    ", sAccountx " + //3
-                    ", cSocialTp " + //4
-                    ", cRecdStat " + //5
-                    ", sEntryByx " + //6
-                    ", dEntryDte " + //7
-                    ", sModified " + //8
-                    ", dModified " + //9
-                " FROM client_social_media " +
-                " WHERE 0=1";
+        String lsSQL =    "  SELECT    "                 
+                        + "  sSocialID " //1             
+                        + ", sClientID " //2             
+                        + ", sAccountx " //3             
+                        + ", cSocialTp " //4             
+                        + ", cRecdStat " //5             
+                        + ", sEntryByx " //6             
+                        + ", dEntryDte " //7             
+                        + ", sModified " //8             
+                        + ", dModified " //9             
+                        + "FROM client_social_media  "  
+                        + "WHERE 0=1 " ;
         
         
         ResultSet loRS = instance.executeQuery(lsSQL);
