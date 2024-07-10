@@ -248,7 +248,7 @@ public class Vehicle_Serial implements GRecord{
         String lsSQL = poVhclSerial.getModel().getSQL();
         lsSQL = MiscUtil.addCondition(lsSQL, " a.cSoldStat = '1' AND (ISNULL(a.sClientID) OR  TRIM(a.sClientID) = '' )" );
         
-        System.out.println(lsSQL);
+        //System.out.println(lsSQL);
         ResultSet loRS;
         loRS = poGRider.executeQuery(lsSQL);
         JSONObject loJSON = ShowDialogFX.Search(poGRider, 
@@ -298,7 +298,7 @@ public class Vehicle_Serial implements GRecord{
         ResultSet loRS;
         JSONObject loJSON = null;
         lsSQL = getSQ_SearchVhclMake() + " GROUP BY a.sMakeIDxx ";
-        System.out.println(lsSQL);
+        //System.out.println(lsSQL);
         loRS = poGRider.executeQuery(lsSQL);
         loJSON = ShowDialogFX.Search(poGRider, 
                                         lsSQL, 
@@ -366,7 +366,7 @@ public class Vehicle_Serial implements GRecord{
         ResultSet loRS;
         JSONObject loJSON = null;
         lsSQL = lsSQL  + " GROUP BY a.sModelIDx " ;
-        System.out.println(lsSQL);
+        //System.out.println(lsSQL);
         loRS = poGRider.executeQuery(lsSQL);
         
         loJSON = ShowDialogFX.Search(poGRider, 

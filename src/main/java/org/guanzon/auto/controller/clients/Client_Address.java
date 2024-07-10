@@ -85,16 +85,16 @@ public class Client_Address {
         }
         
         
-        System.out.println("addAddress Client Address Size : " + getAddressList().size());
-        System.out.println("addAddress Addresses Size : " + poAddresses.getAddressesList().size());
+        //System.out.println("addAddress Client Address Size : " + getAddressList().size());
+        //System.out.println("addAddress Addresses Size : " + poAddresses.getAddressesList().size());
         return poJSON;
     }
     
     public JSONObject OpenClientAddress(String fsValue){
         poJSON = new JSONObject();
-        String lsSQL =  " SELECT   "  +                                                 
-                "   IFNULL(sAddrssID, '')  sAddrssID   " + //1                                     
-                " , IFNULL(sClientID, '')  sClientID   " + //2                     
+        String lsSQL =  " SELECT "  +                                                 
+                "   sAddrssID   " + //1                                     
+                " , sClientID   " + //2                     
                 "  FROM client_address               "   ;
         lsSQL = MiscUtil.addCondition(lsSQL, "sClientID = " + SQLUtil.toSQL(fsValue) + " GROUP BY sAddrssID");
         System.out.println(lsSQL);
@@ -115,7 +115,7 @@ public class Client_Address {
                         poJSON.put("message", "Record loaded successfully.");
                     } 
                 
-                System.out.println("lnctr = " + lnctr);
+                //System.out.println("lnctr = " + lnctr);
                 
             }else{
                 paAddress = new ArrayList<>();
@@ -131,8 +131,8 @@ public class Client_Address {
             poJSON.put("message", e.getMessage());
         }
         
-        System.out.println("OpenClientAddress Client Address Size : " + getAddressList().size());
-        System.out.println("OpenClientAddress Addresses Size : " + poAddresses.getAddressesList().size());
+        //System.out.println("OpenClientAddress Client Address Size : " + getAddressList().size());
+        //System.out.println("OpenClientAddress Addresses Size : " + poAddresses.getAddressesList().size());
         
         return poJSON;
     }
@@ -203,8 +203,8 @@ public class Client_Address {
             poAddresses.removeAddresses(fnRow);
             paAddress.remove(fnRow);
             
-            System.out.println("removeAddress Client Address Size : " + getAddressList().size());
-            System.out.println("removeAddress Addresses Size : " + poAddresses.getAddressesList().size());
+            //System.out.println("removeAddress Client Address Size : " + getAddressList().size());
+            //System.out.println("removeAddress Addresses Size : " + poAddresses.getAddressesList().size());
         } else {
             loJSON.put("result", "error");
             loJSON.put("message", "You cannot remove Client Address that already saved, Deactivate it instead.");
@@ -246,23 +246,25 @@ public class Client_Address {
                 " LEFT JOIN Barangay c ON c.sBrgyIDxx = a.sBrgyIDxx " +   
                 " LEFT JOIN Province d ON d.sProvIDxx = b.sProvIDxx ";
             lsSQL = MiscUtil.addCondition(lsSQL, " UPPER(REPLACE(CONCAT(IFNULL(a.sHouseNox,''), IFNULL(a.sAddressx,''),IFNULL(c.sBrgyName,''), IFNULL(b.sTownName,''), IFNULL(d.sProvName,'')), ' ', '')) = " + SQLUtil.toSQL(fsValue)); //" CONCAT_WS(a.sHouseNox, REPLACE(a.sAddressx, ' ', ''),REPLACE(c.sBrgyName, ' ', ''), REPLACE(b.sTownName, ' ', ''), REPLACE(d.sProvName, ' ', '')) = "
-            System.out.println(lsSQL);
+            //System.out.println(lsSQL);
             ResultSet loRS = poGRider.executeQuery(lsSQL);
 
             if (MiscUtil.RecordCount(loRS) > 0) {
                 while(loRS.next()){
-                    System.out.println("Address ID >>> " + loRS.getString("sAddrssID"));
+                    //System.out.println("Address ID >>> " + loRS.getString("sAddrssID"));
                     if(!fbCheck){
                         paAddress.get(fnRow).setAddressID(loRS.getString("sAddrssID"));
+                        poAddresses.setAddresses(poAddresses.getAddressesList().size()-1, "sRemarksx", paAddress.get(poAddresses.getAddressesList().size()-1).getRemarks());
                     } else {
                         poAddresses.removeAddresses(fnRow);
                         poAddresses.openAddresses(loRS.getString("sAddrssID"));
+                        poAddresses.setAddresses(poAddresses.getAddressesList().size()-1, "sRemarksx", paAddress.get(poAddresses.getAddressesList().size()-1).getRemarks());
                         obj.put("result", "confirm");
                         obj.put("message", "Existing Address Information found. You want to link this Address?");
                         return obj;
                     }
                 }
-            } else {
+                } else {
                 int lnSize = poAddresses.getAddressesList().size()-1;
                 if(lnSize >= 0){
                     poAddresses.setAddresses(lnSize, "sHouseNox", paAddress.get(lnSize).getHouseNo());
@@ -270,11 +272,13 @@ public class Client_Address {
                     poAddresses.setAddresses(lnSize, "sBrgyIDxx", paAddress.get(lnSize).getBrgyID());
                     poAddresses.setAddresses(lnSize, "sTownIDxx", paAddress.get(lnSize).getTownID());
                     poAddresses.setAddresses(lnSize, "sZippCode", paAddress.get(lnSize).getZippCode());
+                    poAddresses.setAddresses(lnSize, "sRemarksx", paAddress.get(lnSize).getRemarks());
                 }
                 
                 obj.put("result", "success");
                 obj.put("message", "Added to Addresses");
             }
+            
         } catch (SQLException ex) {
             Logger.getLogger(Client_Address.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -327,7 +331,7 @@ public class Client_Address {
                     
             lsSQL = MiscUtil.addCondition(lsSQL, " a.sAddrssID = " + SQLUtil.toSQL(fsAddressID) +
                                                                             " AND a.sClientID <> " + SQLUtil.toSQL(fsClientID)); 
-            System.out.println(lsSQL);
+            //System.out.println(lsSQL);
             ResultSet loRS = poGRider.executeQuery(lsSQL);
             
             if (MiscUtil.RecordCount(loRS) > 0) {
@@ -356,6 +360,7 @@ public class Client_Address {
         poAddresses.setAddresses(fnRow, "sBrgyIDxx", paAddress.get(fnRow).getBrgyID());
         poAddresses.setAddresses(fnRow, "sTownIDxx", paAddress.get(fnRow).getTownID());
         poAddresses.setAddresses(fnRow, "sZippCode", paAddress.get(fnRow).getZippCode());
+        poAddresses.setAddresses(fnRow, "sRemarksx", paAddress.get(fnRow).getRemarks());
          
         loJSON.put("result", "success");
         loJSON.put("message", "Update Addresses success.");
@@ -445,8 +450,8 @@ public class Client_Address {
         }else{
             
             String townProvince = String.valueOf(paAddress.get(fnRow).getValue("sTownName"));
-            System.out.println("fsValue = " + fsValue);
-            System.out.println("town = " + townProvince);
+            //System.out.println("fsValue = " + fsValue);
+            //System.out.println("town = " + townProvince);
             if(!townProvince.isEmpty()){
                 if (fsValue.equals(townProvince)){
                     loJSON = new JSONObject();
@@ -475,7 +480,7 @@ public class Client_Address {
        
             
       
-        System.out.println("lsSQL Town = " + lsSQL);
+        //System.out.println("lsSQL Town = " + lsSQL);
         
         loJSON = ShowDialogFX.Search(poGRider, 
                             lsSQL, 
@@ -484,7 +489,7 @@ public class Client_Address {
                             "sTownIDxx»sTownName»sZippCode»sProvName", 
                             "a.sTownIDxx»a.sTownName»a.sZippCode»b.sProvName", 
                             fbByCode ? 0 : 1);
-        System.out.println("loJSON Town = " + loJSON);
+        //System.out.println("loJSON Town = " + loJSON);
             
             if (loJSON != null) {
                 paAddress.get(fnRow).setTownID((String) loJSON.get("sTownIDxx"));
@@ -520,8 +525,8 @@ public class Client_Address {
             }
         }else{
             String lsProvince = String.valueOf(paAddress.get(fnRow).getValue("sProvName"));
-            System.out.println("fsValue = " + fsValue);
-            System.out.println("Province = " + lsProvince);
+            //System.out.println("fsValue = " + fsValue);
+            //System.out.println("Province = " + lsProvince);
             if(!lsProvince.isEmpty()){
                 if (fsValue.equals(lsProvince)){
                     loJSON = new JSONObject();
@@ -545,7 +550,7 @@ public class Client_Address {
        
             
       
-        System.out.println("lsSQL Province = " + lsSQL);
+        //System.out.println("lsSQL Province = " + lsSQL);
         
         loJSON = ShowDialogFX.Search(poGRider, 
                             lsSQL, 
@@ -554,7 +559,7 @@ public class Client_Address {
                             "sProvIDxx»sProvName", 
                             "sProvIDxx»sProvName", 
                             fbByCode ? 0 : 1);
-        System.out.println("loJSON Province = " + loJSON);
+        //System.out.println("loJSON Province = " + loJSON);
             
             if (loJSON != null) {
                 paAddress.get(fnRow).setProvID((String) loJSON.get("sProvIDxx"));

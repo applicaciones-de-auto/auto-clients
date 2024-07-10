@@ -5,10 +5,6 @@
  */
 package org.guanzon.auto.controller.clients;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Connection;
 import org.guanzon.appdriver.agent.ShowDialogFX;
 import org.guanzon.appdriver.base.GRider;
@@ -19,8 +15,6 @@ import org.guanzon.appdriver.iface.GRecord;
 import org.guanzon.auto.model.clients.Model_Client_Master;
 import org.guanzon.auto.general.SearchDialog;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -141,7 +135,7 @@ public class Client_Master implements GRecord{
 //        }
 //        return jObj;
 //    }
-    
+//    
 //    public JSONObject loadJSONFile(){
 //        poClient = new Model_Client_Master(poGRider);
 //        JSONObject jObj = new JSONObject();
@@ -190,7 +184,7 @@ public class Client_Master implements GRecord{
         
         poClient = new Model_Client_Master(poGRider);
         poJSON = poClient.openRecord(fsValue);
-        //poJSON = saveJSONFile();
+//        poJSON = saveJSONFile();
         if("error".equals(poJSON.get("result"))){
             return poJSON;
         }
@@ -283,10 +277,17 @@ public class Client_Master implements GRecord{
                                 " ON bb.sTownIDxx = d.sTownIDxx" + 
                             " LEFT JOIN Province e" +
                                 " ON d.sProvIDxx = e.sProvIDxx";
+//        if (fbByCode) {
+//            lsSQL = MiscUtil.addCondition(lsSQL, "a.sClientID = " + SQLUtil.toSQL(fsValue));
+//        } else {
+//            lsSQL = MiscUtil.addCondition(lsSQL, "a.sCompnyNm LIKE " + SQLUtil.toSQL("%" + fsValue + "%"));
+//        }
+        
+        //lsSQL = lsSQL + " GROUP BY a.sClientID";
         JSONObject loJSON;
         String lsValue;
             
-        System.out.println(lsSQL);
+        //System.out.println(lsSQL);
 //        loJSON = ShowDialogFX.Search(poGRider, 
 //                                        lsSQL, 
 //                                        fsValue, 
@@ -307,7 +308,7 @@ public class Client_Master implements GRecord{
             
         
         if (loJSON != null && !"error".equals((String) loJSON.get("result"))) {
-            System.out.println("sClientID = " + (String) loJSON.get("sClientID"));
+            //System.out.println("sClientID = " + (String) loJSON.get("sClientID"));
             lsValue = (String) loJSON.get("sClientID");
         }else {
             loJSON  = new JSONObject();  
@@ -315,7 +316,7 @@ public class Client_Master implements GRecord{
             loJSON.put("message", "No client information found");
             return loJSON;
         }
-        System.out.println("loJSON = " + loJSON.toJSONString());
+        //System.out.println("loJSON = " + loJSON.toJSONString());
         return loJSON; //openRecord(lsValue);
     }
 
@@ -418,10 +419,13 @@ public class Client_Master implements GRecord{
                         + ", IFNULL(b.sProvName, '') sProvName "  
                         + " FROM TownCity a"  
                         + " LEFT JOIN Province b on b.sProvIDxx = a.sProvIDxx";
+
+        //lsSQL =  MiscUtil.addCondition(lsSQL, " a.sTownName LIKE " + SQLUtil.toSQL(fsValue + "%")
+        //                                        + " OR TRIM(CONCAT(a.sTownName, ', ', b.sProvName)) LIKE " + SQLUtil.toSQL("%" +fsValue + "%"));
         
         lsSQL =  MiscUtil.addCondition(lsSQL, "TRIM(CONCAT(a.sTownName, ', ', b.sProvName)) LIKE " + SQLUtil.toSQL("%" +fsValue + "%"));
        
-        System.out.println(lsSQL);
+        //System.out.println(lsSQL);
         loJSON = ShowDialogFX.Search(poGRider, 
                             lsSQL, 
                             fsValue,
