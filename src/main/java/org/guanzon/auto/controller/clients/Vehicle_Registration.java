@@ -209,7 +209,7 @@ public class Vehicle_Registration implements GRecord {
                 "  sEntryByx," +
                 "  dEntryDte," +
                 "  sModified," +
-                "  dModified" +
+                "  dModified " +
                 "FROM vehicle_serial_registration";
     }
     

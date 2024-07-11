@@ -102,7 +102,7 @@ public class Client_Social_Media {
                         poJSON.put("message", "Record loaded successfully.");
                     } 
                 
-                System.out.println("lnctr = " + lnctr);
+                //System.out.println("lnctr = " + lnctr);
             }else{
 //                paSocMed = new ArrayList<>();
 //                addSocialMedia(fsValue);

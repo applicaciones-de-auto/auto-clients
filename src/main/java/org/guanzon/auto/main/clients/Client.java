@@ -6,6 +6,8 @@
 package org.guanzon.auto.main.clients;
 
 import java.util.ArrayList;
+import java.util.Date;
+import org.guanzon.appdriver.base.CommonUtils;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
@@ -190,12 +192,12 @@ public class Client implements GRecord{
         }
         
         if (!pbWtParent) poGRider.commitTrans();
-        
         return poJSON;
     }
     
     private JSONObject validateEntry(){
         JSONObject obj = new JSONObject();
+        
         
         ValidatorInterface validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Master, poClient.getModel());
         validator.setGRider(poGRider);

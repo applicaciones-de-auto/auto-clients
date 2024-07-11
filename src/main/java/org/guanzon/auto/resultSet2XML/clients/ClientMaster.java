@@ -63,11 +63,7 @@ public class ClientMaster {
                         + ", a.sModified "  //23                                                                                
                         + ", a.dModified "  //24                                                                                
                         + ", IFNULL(b.sCntryNme, '') sCntryNme   " //25                                                         
-                        + ", TRIM(CONCAT(c.sTownName, ', ', d.sProvName)) sTownName   "   //26                                  
-//                        + ", TRIM(CONCAT(a.sLastName, ', ', a.sFrstName, ' ', a.sSuffixNm, ' ', a.sMiddName)) sCustName  " //27 
-//                        + ", TRIM(CONCAT(e.sLastName, ', ', e.sFrstName)) sSpouseNm   " //28      
-//                        + ", TRIM(CONCAT(IFNULL(a.sLastName,''), ', ', IFNULL(a.sFrstName,''), ' ', IFNULL(a.sSuffixNm,''), ' ', IFNULL(a.sMiddName,'')))    sCustName " //27
-//                        + ", TRIM(CONCAT(IFNULL(e.sLastName,''), ', ', IFNULL(e.sFrstName,''), ' ', IFNULL(e.sMiddName,'')))    sSpouseNm " //28
+                        + ", TRIM(CONCAT(c.sTownName, ', ', d.sProvName)) sTownName   "   //26       
                         + ", e.sCompnyNm    sSpouseNm " //27
                         + ",  IFNULL(CONCAT( IFNULL(CONCAT(g.sHouseNox,' ') , ''),    "                                         
                         + "   IFNULL(CONCAT(g.sAddressx,' ') , ''),                   "                                         
@@ -86,7 +82,7 @@ public class ClientMaster {
                         + "LEFT JOIN province j ON j.sProvIDxx = i.sProvIDxx          "            
                         + " WHERE 0=1";
         
-        System.out.println(lsSQL);
+        //System.out.println(lsSQL);
         ResultSet loRS = instance.executeQuery(lsSQL);
         try {
             if (MiscUtil.resultSet2XML(instance, loRS, System.getProperty("sys.default.path.metadata"), "client_master", "")){

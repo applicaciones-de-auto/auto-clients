@@ -102,7 +102,7 @@ public class Client_Mobile {
                         poJSON.put("message", "Record loaded successfully.");
                     } 
                 
-                System.out.println("lnctr = " + lnctr);
+                //System.out.println("lnctr = " + lnctr);
             }else{
                 paMobile = new ArrayList<>();
                 addContact(fsValue);
