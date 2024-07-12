@@ -95,7 +95,7 @@ public class Client_Address {
         String lsSQL =  " SELECT "  +                                                 
                 "   sAddrssID   " + //1                                     
                 " , sClientID   " + //2                     
-                "  FROM client_address               "   ;
+                "  FROM client_address   "   ;
         lsSQL = MiscUtil.addCondition(lsSQL, "sClientID = " + SQLUtil.toSQL(fsValue) + " GROUP BY sAddrssID");
         System.out.println(lsSQL);
         ResultSet loRS = poGRider.executeQuery(lsSQL);
@@ -107,7 +107,7 @@ public class Client_Address {
                 poAddresses.resetAddressesList();
                 while(loRS.next()){
                         paAddress.add(new Model_Client_Address(poGRider));
-                        paAddress.get(paAddress.size() - 1).openRecord(loRS.getString("sAddrssID"));
+                        paAddress.get(paAddress.size() - 1).openRecord(loRS.getString("sAddrssID"), loRS.getString("sClientID"));
                         poAddresses.openAddresses(loRS.getString("sAddrssID"));
                         pnEditMode = EditMode.UPDATE;
                         lnctr++;

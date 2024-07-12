@@ -5,10 +5,16 @@
  */
 package org.guanzon.auto.main.clients;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.guanzon.appdriver.base.CommonUtils;
 import org.guanzon.appdriver.base.GRider;
+import org.guanzon.appdriver.base.MiscUtil;
+import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
 import org.guanzon.auto.controller.clients.Client_Address;
@@ -262,6 +268,42 @@ public class Client implements GRecord{
             return obj;
         }
         
+        //VALIDATE : Client Mobile
+        try {
+            String lsCompnyNm = "";
+            String lsClientID = "";
+            String lsSQL = "";
+
+            for (int lnCtr = 0; lnCtr <= lnSize; lnCtr++) {
+                lsSQL = "SELECT " +
+                            "  a.sClientID " +
+                            ", a.sCompnyNm " +
+                            ", a.cClientTp " +
+                            ", b.sMobileID " +
+                            ", b.sMobileNo " +
+                            "FROM client_master a " +
+                            "LEFT JOIN client_mobile b ON b.sClientID = a.sClientID " ;
+                lsSQL = MiscUtil.addCondition(lsSQL, "b.sMobileNo = " + SQLUtil.toSQL(poMobile.getMobile(lnCtr,"sMobileNo"))) +
+                                                        " AND b.sMobileID <> " + SQLUtil.toSQL(poMobile.getMobile(lnCtr,"sMobileID")) +
+                                                        " AND a.cClientTp = " + SQLUtil.toSQL(poClient.getMaster("cClientTp")) ;
+
+                System.out.println("EXISTING CONTACT NUMBER WITH THE SAME CLIENT TYPE CHECK: " + lsSQL);
+                ResultSet loRS = poGRider.executeQuery(lsSQL);
+                if (MiscUtil.RecordCount(loRS) > 0){
+                        while(loRS.next()){
+                            lsCompnyNm = loRS.getString("sCompnyNm");
+                            lsClientID = loRS.getString("sClientID");
+                        }
+
+                        MiscUtil.close(loRS);
+                        obj.put("result", "error");
+                        obj.put("message", "Existing Contact Number with Customer Record.\n\nClient ID: " + lsClientID + "\nName: " + lsCompnyNm.toUpperCase() );
+                        return obj;
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return obj;
     }
     
