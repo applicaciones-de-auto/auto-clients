@@ -220,7 +220,7 @@ public class Vehicle_Serial implements GRecord{
                 }
                 
                 poVhclSerial.getModel().setClientID((String) loJSON.get("sClientID"));
-                poVhclSerial.getModel().setOwnerNam((String) loJSON.get("sCompnyNm"));
+                poVhclSerial.getModel().setOwnerNmx((String) loJSON.get("sCompnyNm"));
                 poVhclSerial.getModel().setOwnerAdd((String) loJSON.get("xAddressx"));
             } else {
                 
@@ -230,8 +230,8 @@ public class Vehicle_Serial implements GRecord{
                 }
                 
                 poVhclSerial.getModel().setCoCltID((String) loJSON.get("sClientID"));
-                poVhclSerial.getModel().setCoOwnerN((String) loJSON.get("sCompnyNm"));
-                poVhclSerial.getModel().setCoOwnerA((String) loJSON.get("xAddressx"));
+                poVhclSerial.getModel().setCOwnerNm((String) loJSON.get("sCompnyNm"));
+                poVhclSerial.getModel().setCOwnerAd((String) loJSON.get("xAddressx"));
             }
         }
         return loJSON;
