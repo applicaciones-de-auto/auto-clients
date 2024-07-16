@@ -25,31 +25,32 @@ import org.json.simple.JSONObject;
  */
 public class Vehicle_Serial implements GRecord{
     GRider poGRider;
+    boolean pbWthParent;
     String psBranchCd;
     boolean pbWtParent;
     
     int pnEditMode;
-    String psMessagex;
     String psRecdStat;
-    
-    Vehicle_Serial_Master poVhclSerial;
-    Vehicle_Registration poVhclReg;
-    Client poClient;
     
     public JSONObject poJSON;
     
+    Vehicle_Serial_Master poController;
+    Vehicle_Registration poVhclReg;
+    Client poClient;
+    
     public Vehicle_Serial(GRider foAppDrver, boolean fbWtParent, String fsBranchCd){
-        poVhclSerial = new Vehicle_Serial_Master(foAppDrver,fbWtParent,fsBranchCd);
+        poController = new Vehicle_Serial_Master(foAppDrver,fbWtParent,fsBranchCd);
         poVhclReg = new Vehicle_Registration(foAppDrver,fbWtParent,fsBranchCd);
+        poClient = new Client(foAppDrver,fbWtParent,fsBranchCd);
         
         poGRider = foAppDrver;
         pbWtParent = fbWtParent;
         psBranchCd = fsBranchCd.isEmpty() ? foAppDrver.getBranchCode() : fsBranchCd;
     }
     
-    
     @Override
     public int getEditMode() {
+        pnEditMode = poController.getEditMode();
         return pnEditMode;
     }
 
@@ -57,18 +58,18 @@ public class Vehicle_Serial implements GRecord{
     public void setRecordStatus(String fsValue) {
         psRecdStat = fsValue;
     }
-    
+
     @Override
     public JSONObject setMaster(int fnCol, Object foData) {
         JSONObject obj = new JSONObject(); 
         obj.put("pnEditMode", pnEditMode);
-        obj = poVhclSerial.setMaster(fnCol, foData);
+        obj = poController.setMaster(fnCol, foData);
         return obj;
     }
 
     @Override
     public JSONObject setMaster(String fsCol, Object foData) {
-        return poVhclSerial.setMaster(fsCol, foData);
+        return poController.setMaster(fsCol, foData);
     }
 
     @Override
@@ -76,76 +77,64 @@ public class Vehicle_Serial implements GRecord{
         if(pnEditMode == EditMode.UNKNOWN)
             return null;
         else 
-            return poVhclSerial.getMaster(fnCol);
+            return poController.getMaster(fnCol);
     }
 
     @Override
     public Object getMaster(String fsCol) {
-        return poVhclSerial.getMaster(fsCol);
+        return poController.getMaster(fsCol);
     }
 
     @Override
     public JSONObject newRecord() {
         poJSON = new JSONObject();
         try{
-            pnEditMode = EditMode.ADDNEW;
-            
-            poVhclSerial.newRecord();
+            poJSON = poController.newRecord();
             poVhclReg.newRecord();
-            
-            if (poVhclSerial == null || poVhclReg == null){
-                poJSON.put("result", "error");
-                poJSON.put("message", "initialized new record failed.");
-                return poJSON;
-            }else{
-                poJSON.put("result", "success");
-                poJSON.put("message", "initialized new record.");
-                pnEditMode = EditMode.ADDNEW;
+            if("success".equals(poJSON.get("result"))){
+                pnEditMode = poController.getEditMode();
+            } else {
+                pnEditMode = EditMode.UNKNOWN;
             }
                
         }catch(NullPointerException e){
             poJSON.put("result", "error");
             poJSON.put("message", e.getMessage());
+            pnEditMode = EditMode.UNKNOWN;
         }
         return poJSON;
     }
 
     @Override
     public JSONObject openRecord(String fsValue) {
-        pnEditMode = EditMode.READY;
         poJSON = new JSONObject();
         
-        poJSON = poVhclSerial.openRecord(fsValue);
+        poJSON = poController.openRecord(fsValue);
         poJSON = poVhclReg.openRecord(fsValue);
         
+        if("success".equals(poJSON.get("result"))){
+            pnEditMode = poController.getEditMode();
+        } else {
+            pnEditMode = EditMode.UNKNOWN;
+        }
         return poJSON;
     }
 
     @Override
     public JSONObject updateRecord() {
-        poVhclReg.updateRecord();
-        return poVhclSerial.updateRecord();
+        poJSON = new JSONObject();  
+        poJSON = poController.updateRecord();
+        poJSON = poVhclReg.updateRecord();
+        pnEditMode = poController.getEditMode();
+        return poJSON;
     }
 
     @Override
     public JSONObject saveRecord() {
-    
-        poJSON = new JSONObject();  
-        
-        poJSON =  poVhclSerial.saveRecord();
-        if("error".equalsIgnoreCase((String)checkData(poJSON).get("result"))){
-            if (!pbWtParent) poGRider.rollbackTrans();
-            return checkData(poJSON);
+        poJSON = poController.saveRecord();
+        if(!"error".equals((String) poJSON.get("result"))){
+            poJSON = poVhclReg.saveRecord();
         }
-        
-        poJSON =  poVhclReg.saveRecord();
-        if("error".equalsIgnoreCase((String)checkData(poJSON).get("result"))){
-            if (!pbWtParent) poGRider.rollbackTrans();
-            return checkData(poJSON);
-        }
-      
-        if (!pbWtParent) poGRider.commitTrans();
-        
         return poJSON;
     }
 
@@ -165,33 +154,22 @@ public class Vehicle_Serial implements GRecord{
     }
 
     @Override
-    public JSONObject searchRecord(String fsValue, boolean fbByCode) {
-        return poVhclSerial.searchRecord(fsValue, fbByCode);
+    public JSONObject searchRecord(String fsValue,  boolean fbByActive) {
+        poJSON = new JSONObject();  
+        poJSON = poController.searchRecord(fsValue, fbByActive);
+        if(!"error".equals(poJSON.get("result"))){
+            poJSON = openRecord((String) poJSON.get("sSerialID"));
+        }
+        return poJSON;
     }
 
     @Override
-    public Object getModel() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    public Vehicle_Serial_Master getVhclSerialController() {
-        return poVhclSerial;
+    public Vehicle_Serial_Master getModel() {
+        return poController;
     }
     
     public Vehicle_Registration getVhclRegController() {
         return poVhclReg;
-    }
-    
-    private JSONObject checkData(JSONObject joValue){
-        if(pnEditMode == EditMode.ADDNEW || pnEditMode == EditMode.READY || pnEditMode == EditMode.UPDATE){
-            if(joValue.containsKey("continue")){
-                if(true == (boolean)joValue.get("continue")){
-                    joValue.put("result", "success");
-                    joValue.put("message", "Record saved successfully.");
-                }
-            }
-        }
-        return joValue;
     }
     
     /**
@@ -208,30 +186,30 @@ public class Vehicle_Serial implements GRecord{
         if (loJSON != null && !"error".equals((String) loJSON.get("result"))) {
             if(isOwner){
                 if(isTransfer){
-                    if(poVhclSerial.getModel().getClientID().equals((String) loJSON.get("sClientID"))){
+                    if(poController.getModel().getClientID().equals((String) loJSON.get("sClientID"))){
                         loJSON.put("result", "error");
                         loJSON.put("message", "Selected new owner is the same with current owner.");
                     }
                     
-                    if(poVhclSerial.getModel().getCoCltID().equals((String) loJSON.get("sClientID"))){
+                    if(poController.getModel().getCoCltID().equals((String) loJSON.get("sClientID"))){
                         loJSON.put("result", "error");
                         loJSON.put("message", "Selected new owner cannot be the same with current co - owner.");
                     }
                 }
                 
-                poVhclSerial.getModel().setClientID((String) loJSON.get("sClientID"));
-                poVhclSerial.getModel().setOwnerNmx((String) loJSON.get("sCompnyNm"));
-                poVhclSerial.getModel().setOwnerAdd((String) loJSON.get("xAddressx"));
+                poController.getModel().setClientID((String) loJSON.get("sClientID"));
+                poController.getModel().setOwnerNmx((String) loJSON.get("sCompnyNm"));
+                poController.getModel().setOwnerAdd((String) loJSON.get("xAddressx"));
             } else {
                 
-                if(poVhclSerial.getModel().getClientID().equals((String) loJSON.get("sClientID"))){
+                if(poController.getModel().getClientID().equals((String) loJSON.get("sClientID"))){
                     loJSON.put("result", "error");
                     loJSON.put("message", "Selected co - owner cannot be the same with current owner.");
                 }
                 
-                poVhclSerial.getModel().setCoCltID((String) loJSON.get("sClientID"));
-                poVhclSerial.getModel().setCOwnerNm((String) loJSON.get("sCompnyNm"));
-                poVhclSerial.getModel().setCOwnerAd((String) loJSON.get("xAddressx"));
+                poController.getModel().setCoCltID((String) loJSON.get("sClientID"));
+                poController.getModel().setCOwnerNm((String) loJSON.get("sCompnyNm"));
+                poController.getModel().setCOwnerAd((String) loJSON.get("xAddressx"));
             }
         }
         return loJSON;
@@ -244,11 +222,10 @@ public class Vehicle_Serial implements GRecord{
     public JSONObject searchAvailableVhcl(String fsValue){
         String lsHeader = "Vehicle Serial»CS No»Vehicle Description»Plate No»Frame Number»Engine Number";
         String lsColName = "sSerialID»sCSNoxxxx»sDescript»sPlateNox»sFrameNox»sEngineNo"; 
-        String lsColCrit = "sSerialID»sCSNoxxxx»sDescript»sPlateNox»sFrameNox»sEngineNo";
-        String lsSQL = poVhclSerial.getModel().getSQL();
+        String lsColCrit = "a.sSerialID»a.sCSNoxxxx»b.sPlateNox»c.sDescript»a.sFrameNox»a.sEngineNo";
+        String lsSQL = poController.getModel().getSQL();
         lsSQL = MiscUtil.addCondition(lsSQL, " a.cSoldStat = '1' AND (ISNULL(a.sClientID) OR  TRIM(a.sClientID) = '' )" );
         
-        //System.out.println(lsSQL);
         ResultSet loRS;
         loRS = poGRider.executeQuery(lsSQL);
         JSONObject loJSON = ShowDialogFX.Search(poGRider, 
@@ -260,13 +237,13 @@ public class Vehicle_Serial implements GRecord{
                                         0);
         
         
-        if (loJSON == null){
+        if (loJSON != null){
+            loJSON = openRecord((String) loJSON.get("sSerialID"));
+            pnEditMode = EditMode.UPDATE;
+        } else {
             loJSON  = new JSONObject();  
             loJSON.put("result", "error");
             loJSON.put("message", "No vehicle found");
-        } else {
-            loJSON = openRecord((String) loJSON.get("sSerialID"));
-            pnEditMode = EditMode.UPDATE;
         }
                
         return loJSON;
@@ -292,7 +269,7 @@ public class Vehicle_Serial implements GRecord{
         String lsColCrit = "a.sMakeIDxx»b.sMakeDesc";
         
         String lsSQL = getSQ_SearchVhclMake();
-        String lsOrigVal = poVhclSerial.getModel().getMakeID();
+        String lsOrigVal = poController.getModel().getMakeID();
         String lsNewVal = "";
         
         ResultSet loRS;
@@ -854,6 +831,20 @@ public class Vehicle_Serial implements GRecord{
 //        return true;
 //    }
     
+    
+    
+    private JSONObject checkData(JSONObject joValue){
+        if(pnEditMode == EditMode.ADDNEW || pnEditMode == EditMode.READY || pnEditMode == EditMode.UPDATE){
+            if(joValue.containsKey("continue")){
+                if(true == (boolean)joValue.get("continue")){
+                    joValue.put("result", "success");
+                    joValue.put("message", "Record saved successfully.");
+                }
+            }
+        }
+        return joValue;
+    }
+    
     /**
      * Loads the list of vehicles from the database base of client ID.
      * @param fsValue Identify as the client ID
@@ -869,15 +860,15 @@ public class Vehicle_Serial implements GRecord{
             return poJSON;
         }
         
-        poJSON = checkData(poVhclSerial.LoadVehicleList(fsValue, fbisOwner));
+        poJSON = checkData(poController.LoadVehicleList(fsValue, fbisOwner));
         return poJSON;
     }
     
-    public ArrayList getVehicleSerialList(){return poVhclSerial.getVehicleSerialList();}
-    public void setVehicleSerialList(ArrayList foObj){this.poVhclSerial.setVehicleSerialList(foObj);}
+    public ArrayList getVehicleSerialList(){return poController.getVehicleSerialList();}
+    public void setVehicleSerialList(ArrayList foObj){this.poController.setVehicleSerialList(foObj);}
     
-    public void setVehicleSerial(int fnRow, int fnIndex, Object foValue){ poVhclSerial.setVehicleSerial(fnRow, fnIndex, foValue);}
-    public void setVehicleSerial(int fnRow, String fsIndex, Object foValue){ poVhclSerial.setVehicleSerial(fnRow, fsIndex, foValue);}
-    public Object getVehicleSerial(int fnRow, int fnIndex){return poVhclSerial.getVehicleSerial(fnRow, fnIndex);}
-    public Object getVehicleSerial(int fnRow, String fsIndex){return poVhclSerial.getVehicleSerial(fnRow, fsIndex);}
+    public void setVehicleSerial(int fnRow, int fnIndex, Object foValue){ poController.setVehicleSerial(fnRow, fnIndex, foValue);}
+    public void setVehicleSerial(int fnRow, String fsIndex, Object foValue){ poController.setVehicleSerial(fnRow, fsIndex, foValue);}
+    public Object getVehicleSerial(int fnRow, int fnIndex){return poController.getVehicleSerial(fnRow, fnIndex);}
+    public Object getVehicleSerial(int fnRow, String fsIndex){return poController.getVehicleSerial(fnRow, fsIndex);}
 }

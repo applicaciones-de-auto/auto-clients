@@ -38,7 +38,7 @@ public class VehicleSerial {
         System.setProperty("sys.default.path.metadata", "D:/GGC_Maven_Systems/config/metadata/Model_Vehicle_Serial_Master.xml");
         
         
-        String lsSQL =    "  SELECT "                                                                                               
+        String lsSQL =     "  SELECT "                                                                                               
                         + "  a.sSerialID " //1                                                                                           
                         + ", a.sBranchCD " //2                                                                                           
                         + ", a.sFrameNox " //3                                                                                           
@@ -90,8 +90,8 @@ public class VehicleSerial {
                         + "  WHEN a.cSoldStat = '3' THEN 'SOLD' "              
                         + " ELSE '' "              
                         + " END AS sVhclStat " //39         
-                        + " , r.sReferNox " //40         
-                        + " , r.dTransact " //41         
+                        + " , r.sReferNox AS sUdrNoxxx" //40         
+                        + " , r.dTransact AS sUdrDatex" //41         
                         + " , s.sCompnyNm AS sBuyerNmx " //42         
                         + "FROM vehicle_serial a "              
                         + "LEFT JOIN vehicle_serial_registration b ON a.sSerialID = b.sSerialID "              

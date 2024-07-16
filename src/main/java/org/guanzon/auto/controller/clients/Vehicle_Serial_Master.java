@@ -115,10 +115,6 @@ public class Vehicle_Serial_Master implements GRecord {
         
         poModel = new Model_Vehicle_Serial_Master(poGRider);
         poJSON = poModel.openRecord(fsValue);
-        
-        if("error".equals(poJSON.get("result"))){
-            return poJSON;
-        }
         return poJSON;
     }
 
@@ -191,8 +187,6 @@ public class Vehicle_Serial_Master implements GRecord {
                 0);
 
         if (poJSON != null) {
-            poJSON.put("result", "success");
-            poJSON.put("message", "New selected record.");
         } else {
             poJSON = new JSONObject();
             poJSON.put("result", "error");
@@ -223,37 +217,77 @@ public class Vehicle_Serial_Master implements GRecord {
     private JSONObject validateEntry(){
         JSONObject jObj = new JSONObject();
         try {
+            if(poModel.getVhclID() == null){
+                jObj.put("result", "error");
+                jObj.put("message", "Vehicle ID cannot be Empty.");
+                return jObj;
+            } else {
+                if(poModel.getVhclID().isEmpty()){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Vehicle ID cannot be Empty.");
+                    return jObj;
+                }
+            }
             
-            if(poModel.getMakeID().isEmpty() || poModel.getMakeDesc().isEmpty()){
+            if(poModel.getMakeID() == null){
                 jObj.put("result", "error");
                 jObj.put("message", "Make cannot be Empty.");
                 return jObj;
+            } else {
+                if(poModel.getMakeID().trim().isEmpty()){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Make cannot be Empty.");
+                    return jObj;
+                }
             }
             
-            if(poModel.getModelID().isEmpty() || poModel.getModelDsc().isEmpty()){
+            if(poModel.getModelID() == null){
                 jObj.put("result", "error");
                 jObj.put("message", "Model cannot be Empty.");
                 return jObj;
+            } else {
+                if(poModel.getModelID().trim().isEmpty()){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Model cannot be Empty.");
+                    return jObj;
+                }
             }
             
-            if(poModel.getTypeID().isEmpty() || poModel.getTypeDesc().isEmpty()){
-                jObj.put("result", "error");
-                jObj.put("message", "Type cannot be Empty.");
-                return jObj;
-            }
-            
-            if(poModel.getColorID().isEmpty() || poModel.getColorDsc().isEmpty()){
+            if(poModel.getColorID() == null){
                 jObj.put("result", "error");
                 jObj.put("message", "Color cannot be Empty.");
                 return jObj;
+            } else {
+                if(poModel.getColorID().trim().isEmpty()){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Color cannot be Empty.");
+                    return jObj;
+                }
             }
             
-            if(poModel.getTransMsn().isEmpty()){
+            if(poModel.getTypeID() == null){
                 jObj.put("result", "error");
-                jObj.put("message", "Transmision cannot be Empty.");
+                jObj.put("message", "Type cannot be Empty.");
                 return jObj;
+            } else {
+                if(poModel.getTypeID().trim().isEmpty()){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Type cannot be Empty.");
+                    return jObj;
+                }
             }
-
+            
+            if(poModel.getTransMsn() == null){
+                jObj.put("result", "error");
+                jObj.put("message", "Transmission cannot be Empty.");
+                return jObj;
+            } else {
+                if(poModel.getTransMsn().trim().isEmpty()){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Transmission cannot be Empty.");
+                    return jObj;
+                }
+            }
             
             if(poModel.getYearModl() == null || poModel.getYearModl() == 0){
                 jObj.put("result", "error");
@@ -261,22 +295,28 @@ public class Vehicle_Serial_Master implements GRecord {
                 return jObj;
             }
             
-            if(poModel.getVhclID().isEmpty()){
-                jObj.put("result", "error");
-                jObj.put("message", "Vehicle ID cannot be Empty.");
-                return jObj;
-            }
-            
-            if(poModel.getEngineNo().isEmpty()){
+            if(poModel.getEngineNo() == null){
                 jObj.put("result", "error");
                 jObj.put("message", "Engine No cannot be Empty.");
                 return jObj;
+            } else {
+                if(poModel.getEngineNo().trim().isEmpty() || poModel.getEngineNo().replace(" ", "").length() < 3 ){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Invalid Engine Number.");
+                    return jObj;
+                }
             }
             
-            if(poModel.getFrameNo().isEmpty()){
+            if(poModel.getFrameNo() == null){
                 jObj.put("result", "error");
                 jObj.put("message", "Frame No cannot be Empty.");
                 return jObj;
+            } else {
+                if(poModel.getFrameNo().trim().isEmpty() || poModel.getFrameNo().replace(" ","").length() < 6 ){
+                    jObj.put("result", "error");
+                    jObj.put("message", "Frame Engine Number.");
+                    return jObj;
+                }
             }
             
             String lsID = "";
@@ -409,8 +449,20 @@ public class Vehicle_Serial_Master implements GRecord {
                 1);
 
         if (jObj != null) {
-            jObj.put("result", "success");
-            jObj.put("message", "New selected record.");
+            if("error".equals(jObj.get("result"))){
+                poModel.setMakeID("");
+                poModel.setMakeDesc("");
+                poModel.setModelID("");
+                poModel.setModelDsc("");
+                poModel.setTypeID("");
+                poModel.setTypeDesc("");
+                poModel.setColorID("");
+                poModel.setColorDsc("");
+                poModel.setTransMsn("");
+                poModel.setYearModl(0);
+                poModel.setVhclID("");
+            }
+            
         } else {
             poModel.setMakeID("");
             poModel.setMakeDesc("");
@@ -432,12 +484,18 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     public JSONObject searchModel(String fsValue) {
-        JSONObject jObj;
-        if(poModel.getMakeID().isEmpty()){
-            jObj = new JSONObject();
+        JSONObject jObj = new JSONObject();
+            
+        if(poModel.getMakeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Make cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getMakeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Make cannot be Empty.");
+                return jObj;
+            }
         }
          
         String lsSQL = poModel.getVhclDescSQL();
@@ -456,8 +514,17 @@ public class Vehicle_Serial_Master implements GRecord {
                 1);
 
         if (jObj != null) {
-            jObj.put("result", "success");
-            jObj.put("message", "New selected record.");
+            if("error".equals(jObj.get("result"))){
+                poModel.setModelID("");
+                poModel.setModelDsc("");
+                poModel.setTypeID("");
+                poModel.setTypeDesc("");
+                poModel.setColorID("");
+                poModel.setColorDsc("");
+                poModel.setTransMsn("");
+                poModel.setYearModl(0);
+                poModel.setVhclID("");
+            }
         } else {
             poModel.setModelID("");
             poModel.setModelDsc("");
@@ -477,20 +544,30 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     public JSONObject searchType(String fsValue) {
-        JSONObject jObj;
+        JSONObject jObj = new JSONObject();
         
-        if(poModel.getMakeID().isEmpty()){
-            jObj = new JSONObject();
+        if(poModel.getMakeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Make cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getMakeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Make cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getModelID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getModelID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Model cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getModelID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Model cannot be Empty.");
+                return jObj;
+            }
         }
          
         String lsSQL = poModel.getVhclDescSQL();
@@ -510,8 +587,15 @@ public class Vehicle_Serial_Master implements GRecord {
                 1);
 
         if (jObj != null) {
-            jObj.put("result", "success");
-            jObj.put("message", "New selected record.");
+            if("error".equals(jObj.get("result"))){
+                poModel.setTypeID("");
+                poModel.setTypeDesc("");
+                poModel.setColorID("");
+                poModel.setColorDsc("");
+                poModel.setTransMsn("");
+                poModel.setYearModl(0);
+                poModel.setVhclID("");
+            }
         } else {
             poModel.setTypeID("");
             poModel.setTypeDesc("");
@@ -529,27 +613,54 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     public JSONObject searchTransMsn(String fsValue) {
-        JSONObject jObj;
+        JSONObject jObj = new JSONObject();
         
-        if(poModel.getMakeID().isEmpty()){
-            jObj = new JSONObject();
+        if(poModel.getMakeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Make cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getMakeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Make cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getModelID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getModelID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Model cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getModelID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Model cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getTypeID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getColorID() == null){
+            jObj.put("result", "error");
+            jObj.put("message", "Color cannot be Empty.");
+            return jObj;
+        } else {
+            if(poModel.getColorID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Color cannot be Empty.");
+                return jObj;
+            }
+        }
+
+        if(poModel.getTypeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Type cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getTypeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Type cannot be Empty.");
+                return jObj;
+            }
         }
          
         String lsSQL = poModel.getVhclDescSQL();
@@ -570,8 +681,13 @@ public class Vehicle_Serial_Master implements GRecord {
                 1);
 
         if (jObj != null) {
-            jObj.put("result", "success");
-            jObj.put("message", "New selected record.");
+            if("error".equals(jObj.get("result"))){
+                poModel.setTransMsn("");
+                poModel.setColorID("");
+                poModel.setColorDsc("");
+                poModel.setYearModl(0);
+                poModel.setVhclID("");
+            }
         } else {
             poModel.setTransMsn("");
             poModel.setColorID("");
@@ -587,35 +703,68 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     public JSONObject searchColor(String fsValue) {
-        JSONObject jObj;
+        JSONObject jObj = new JSONObject();
         
-        if(poModel.getMakeID().isEmpty()){
-            jObj = new JSONObject();
+        if(poModel.getMakeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Make cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getMakeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Make cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getModelID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getModelID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Model cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getModelID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Model cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getTypeID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getColorID() == null){
+            jObj.put("result", "error");
+            jObj.put("message", "Color cannot be Empty.");
+            return jObj;
+        } else {
+            if(poModel.getColorID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Color cannot be Empty.");
+                return jObj;
+            }
+        }
+
+        if(poModel.getTypeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Type cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getTypeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Type cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getTransMsn().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getTransMsn() == null){
             jObj.put("result", "error");
             jObj.put("message", "Transmission cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getTransMsn().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Transmission cannot be Empty.");
+                return jObj;
+            }
         }
+
          
         String lsSQL = poModel.getVhclDescSQL();
         
@@ -636,8 +785,12 @@ public class Vehicle_Serial_Master implements GRecord {
                 1);
 
         if (jObj != null) {
-            jObj.put("result", "success");
-            jObj.put("message", "New selected record.");
+            if("error".equals(jObj.get("result"))){
+                poModel.setColorID("");
+                poModel.setColorDsc("");
+                poModel.setYearModl(0);
+                poModel.setVhclID("");
+            } 
         } else {
             poModel.setColorID("");
             poModel.setColorDsc("");
@@ -652,41 +805,66 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     public JSONObject searchYearModel(String fsValue) {
-        JSONObject jObj;
+        JSONObject jObj = new JSONObject();
         
-        if(poModel.getMakeID().isEmpty()){
-            jObj = new JSONObject();
+        if(poModel.getMakeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Make cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getMakeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Make cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getModelID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getModelID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Model cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getModelID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Model cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getTypeID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getTypeID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Type cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getTypeID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Type cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getTransMsn().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getTransMsn() == null){
             jObj.put("result", "error");
             jObj.put("message", "Transmission cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getTransMsn().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Transmission cannot be Empty.");
+                return jObj;
+            }
         }
-        
-        if(poModel.getColorID().isEmpty()){
-            jObj = new JSONObject();
+
+        if(poModel.getColorID() == null){
             jObj.put("result", "error");
             jObj.put("message", "Color cannot be Empty.");
             return jObj;
+        } else {
+            if(poModel.getColorID().trim().isEmpty()){
+                jObj.put("result", "error");
+                jObj.put("message", "Color cannot be Empty.");
+                return jObj;
+            }
         }
          
         String lsSQL = poModel.getVhclDescSQL();
@@ -709,8 +887,10 @@ public class Vehicle_Serial_Master implements GRecord {
                 1);
 
         if (jObj != null) {
-            jObj.put("result", "success");
-            jObj.put("message", "New selected record.");
+            if("error".equals(jObj.get("result"))){
+                poModel.setYearModl(0);
+                poModel.setVhclID("");
+            } 
         } else {
             poModel.setYearModl(0);
             poModel.setVhclID("");
@@ -817,7 +997,8 @@ public class Vehicle_Serial_Master implements GRecord {
         }
         return poJSON;
     }
-
+    
+    
 }
 
 

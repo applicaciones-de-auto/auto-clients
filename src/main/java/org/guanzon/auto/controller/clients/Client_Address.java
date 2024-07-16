@@ -369,10 +369,22 @@ public class Client_Address {
     }
     
     public JSONObject searchBarangay(String fsValue, int fnRow, boolean fbByCode) {
-        JSONObject loJSON;
+        JSONObject loJSON = new JSONObject();
+        
+        if(paAddress.get(fnRow).getTownID()== null){
+            loJSON.put("result", "error");
+            loJSON.put("message", "Town cannot be empty.");
+            return loJSON;
+        } else {
+            if(paAddress.get(fnRow).getTownID().trim().isEmpty()){
+                loJSON.put("result", "error");
+                loJSON.put("message", "Town cannot be empty.");
+                return loJSON;
+            }
+        }
+        
         if (fbByCode){
             if (fsValue.equals((String) paAddress.get(fnRow).getBrgyID())) {
-                loJSON = new JSONObject();
                 loJSON.put("result", "success");
                 loJSON.put("message", "Search barangay success.");
                 return loJSON;
@@ -381,7 +393,6 @@ public class Client_Address {
             if(paAddress.get(fnRow).getBrgyID()!= null && !paAddress.get(fnRow).getBrgyID().toString().trim().isEmpty()){
                 if (!paAddress.get(fnRow).getBrgyName().isEmpty()){
                     if (fsValue.equals(paAddress.get(fnRow).getBrgyName())){
-                        loJSON = new JSONObject();
                         loJSON.put("result", "success");
                         loJSON.put("message", "Search barangay success.");
                         return loJSON;
@@ -389,6 +400,7 @@ public class Client_Address {
                 }
             }
         }
+        
        String lsSQL = "SELECT " +
                             "  a.sBrgyIDxx" +
                             ", a.sBrgyName" +
@@ -421,12 +433,13 @@ public class Client_Address {
                             fbByCode ? 0 : 1);
             
             if (loJSON != null) {
-                paAddress.get(fnRow).setBrgyID((String) loJSON.get("sBrgyIDxx"));
-                paAddress.get(fnRow).setBrgyName((String) loJSON.get("sBrgyName"));
-                
-                loJSON.put("result", "success");
-                loJSON.put("message", "Search barangay success.");
-                return loJSON;
+                if("error".equals(loJSON.get("result"))){
+                    paAddress.get(fnRow).setBrgyID("");
+                    paAddress.get(fnRow).setBrgyName("");
+                } else {
+                    paAddress.get(fnRow).setBrgyID((String) loJSON.get("sBrgyIDxx"));
+                    paAddress.get(fnRow).setBrgyName((String) loJSON.get("sBrgyName"));
+                }
             }else {
                 paAddress.get(fnRow).setBrgyID("");
                 paAddress.get(fnRow).setBrgyName("");
@@ -435,11 +448,26 @@ public class Client_Address {
                 loJSON.put("message", "No record selected.");
                 return loJSON;
             }
+        
+            
+        return loJSON;
     }
     
     public JSONObject searchTown(String fsValue, int fnRow, boolean fbByCode) {
+        JSONObject loJSON = new JSONObject();
         
-        JSONObject loJSON;
+        if(paAddress.get(fnRow).getProvID()== null){
+            loJSON.put("result", "error");
+            loJSON.put("message", "Province cannot be empty.");
+            return loJSON;
+        } else {
+            if(paAddress.get(fnRow).getProvID().trim().isEmpty()){
+                loJSON.put("result", "error");
+                loJSON.put("message", "Province cannot be empty.");
+                return loJSON;
+            }
+        }
+        
         if (fbByCode){
             if (fsValue.equals((String) paAddress.get(fnRow).getTownID())) {
                 loJSON = new JSONObject();
@@ -473,14 +501,11 @@ public class Client_Address {
                         " WHERE a.sProvIDxx = b.sProvIDxx" + 
                             " AND a.cRecdStat = '1'";
         
-        if (fbByCode)
+        if (fbByCode) {
             lsSQL = MiscUtil.addCondition(lsSQL, "a.sProvIDxx = "  + SQLUtil.toSQL(paAddress.get(fnRow).getProvID()) + " AND a.sTownIDxx = " + SQLUtil.toSQL(fsValue));
-        else
+        } else {
             lsSQL = MiscUtil.addCondition(lsSQL, "a.sProvIDxx = "  + SQLUtil.toSQL(paAddress.get(fnRow).getProvID()) + " AND a.sTownName LIKE " + SQLUtil.toSQL(fsValue + "%"));
-       
-            
-      
-        //System.out.println("lsSQL Town = " + lsSQL);
+        }
         
         loJSON = ShowDialogFX.Search(poGRider, 
                             lsSQL, 
@@ -489,17 +514,21 @@ public class Client_Address {
                             "sTownIDxx»sTownName»sZippCode»sProvName", 
                             "a.sTownIDxx»a.sTownName»a.sZippCode»b.sProvName", 
                             fbByCode ? 0 : 1);
-        //System.out.println("loJSON Town = " + loJSON);
             
             if (loJSON != null) {
-                paAddress.get(fnRow).setTownID((String) loJSON.get("sTownIDxx"));
-                paAddress.get(fnRow).setTownName((String) loJSON.get("sTownName"));
-                paAddress.get(fnRow).setZippCode((String) loJSON.get("sZippCode"));
-                paAddress.get(fnRow).setBrgyID("");
-                paAddress.get(fnRow).setBrgyName("");
-                loJSON.put("result", "success");
-                loJSON.put("message", "Search town success.");
-                return loJSON;
+                if("error".equals(loJSON.get("result"))){
+                    paAddress.get(fnRow).setTownID("");
+                    paAddress.get(fnRow).setTownName("");
+                    paAddress.get(fnRow).setZippCode("");
+                    paAddress.get(fnRow).setBrgyID("");
+                    paAddress.get(fnRow).setBrgyName("");
+                } else {
+                    paAddress.get(fnRow).setTownID((String) loJSON.get("sTownIDxx"));
+                    paAddress.get(fnRow).setTownName((String) loJSON.get("sTownName"));
+                    paAddress.get(fnRow).setZippCode((String) loJSON.get("sZippCode"));
+                    paAddress.get(fnRow).setBrgyID("");
+                    paAddress.get(fnRow).setBrgyName("");
+                }
             }else {
                 paAddress.get(fnRow).setTownID("");
                 paAddress.get(fnRow).setTownName("");
@@ -511,25 +540,23 @@ public class Client_Address {
                 loJSON.put("message", "No record selected.");
                 return loJSON;
             }
+            
+        return loJSON;
     }
     
     public JSONObject searchProvince(String fsValue, int fnRow, boolean fbByCode) {
-        
-        JSONObject loJSON;
+        JSONObject loJSON = new JSONObject();
         if (fbByCode){
             if (fsValue.equals((String) paAddress.get(fnRow).getProvID())) {
-                loJSON = new JSONObject();
                 loJSON.put("result", "success");
                 loJSON.put("message", "Search province success.");
                 return loJSON;
             }
         }else{
             String lsProvince = String.valueOf(paAddress.get(fnRow).getValue("sProvName"));
-            //System.out.println("fsValue = " + fsValue);
-            //System.out.println("Province = " + lsProvince);
+            
             if(!lsProvince.isEmpty()){
                 if (fsValue.equals(lsProvince)){
-                    loJSON = new JSONObject();
                     loJSON.put("result", "success");
                     loJSON.put("message", "Search province success.");
                     return loJSON;
@@ -543,14 +570,11 @@ public class Client_Address {
                     + " FROM Province  " 
                     + " WHERE cRecdStat = '1'";
         
-        if (fbByCode)
+        if (fbByCode) {
             lsSQL = MiscUtil.addCondition(lsSQL, "sProvIDxx = " + SQLUtil.toSQL(fsValue));
-        else
+        } else {
             lsSQL = MiscUtil.addCondition(lsSQL, "sProvName LIKE " + SQLUtil.toSQL(fsValue + "%"));
-       
-            
-      
-        //System.out.println("lsSQL Province = " + lsSQL);
+        }
         
         loJSON = ShowDialogFX.Search(poGRider, 
                             lsSQL, 
@@ -559,30 +583,37 @@ public class Client_Address {
                             "sProvIDxx»sProvName", 
                             "sProvIDxx»sProvName", 
                             fbByCode ? 0 : 1);
-        //System.out.println("loJSON Province = " + loJSON);
             
-            if (loJSON != null) {
-                paAddress.get(fnRow).setProvID((String) loJSON.get("sProvIDxx"));
-                paAddress.get(fnRow).setProvName((String) loJSON.get("sProvName"));
-                paAddress.get(fnRow).setTownID("");
-                paAddress.get(fnRow).setTownName("");
-                paAddress.get(fnRow).setBrgyID("");
-                paAddress.get(fnRow).setBrgyName("");
-                loJSON.put("result", "success");
-                loJSON.put("message", "Search province success.");
-                return loJSON;
-            }else {
+        if (loJSON != null) {
+            if("error".equals(loJSON.get("result"))){
                 paAddress.get(fnRow).setProvID("");
                 paAddress.get(fnRow).setProvName("");
                 paAddress.get(fnRow).setTownID("");
                 paAddress.get(fnRow).setTownName("");
                 paAddress.get(fnRow).setBrgyID("");
                 paAddress.get(fnRow).setBrgyName("");
-                loJSON  = new JSONObject();  
-                loJSON.put("result", "error");
-                loJSON.put("message", "No record selected.");
-                return loJSON;
+            } else {
+                paAddress.get(fnRow).setProvID((String) loJSON.get("sProvIDxx"));
+                paAddress.get(fnRow).setProvName((String) loJSON.get("sProvName"));
+                paAddress.get(fnRow).setTownID("");
+                paAddress.get(fnRow).setTownName("");
+                paAddress.get(fnRow).setBrgyID("");
+                paAddress.get(fnRow).setBrgyName("");
             }
+        }else {
+            paAddress.get(fnRow).setProvID("");
+            paAddress.get(fnRow).setProvName("");
+            paAddress.get(fnRow).setTownID("");
+            paAddress.get(fnRow).setTownName("");
+            paAddress.get(fnRow).setBrgyID("");
+            paAddress.get(fnRow).setBrgyName("");
+            loJSON  = new JSONObject();  
+            loJSON.put("result", "error");
+            loJSON.put("message", "No record selected.");
+            return loJSON;
+        }
+        
+        return loJSON;
     }
     
 }
