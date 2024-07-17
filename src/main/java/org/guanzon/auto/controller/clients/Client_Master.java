@@ -363,8 +363,13 @@ public class Client_Master implements GRecord{
             if(!"error".equals(loJSON.get("result"))){
                 poClient.setSpouseID((String) loJSON.get("sClientID"));
                 poClient.setSpouseNm((String) loJSON.get("sCompnyNm"));
+            } else {
+                poClient.setSpouseID("");
+                poClient.setSpouseNm("");
             }
         }else {
+            poClient.setSpouseID("");
+            poClient.setSpouseNm("");
             loJSON  = new JSONObject();  
             loJSON.put("result", "error");
             loJSON.put("message", "No record selected.");
