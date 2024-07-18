@@ -145,6 +145,15 @@ public class Vehicle_Serial implements GRecord{
         }
         return poJSON;
     }
+    
+    public JSONObject searchRecord(String fsValue,  boolean fbByActive, boolean fbIsVhclSales) {
+        poJSON = new JSONObject();  
+        poJSON = poController.searchRecord(fsValue, fbByActive, fbIsVhclSales);
+        if(!"error".equals(poJSON.get("result"))){
+            poJSON = openRecord((String) poJSON.get("sSerialID"));
+        }
+        return poJSON;
+    }
 
     @Override
     public Vehicle_Serial_Master getModel() {
@@ -204,29 +213,29 @@ public class Vehicle_Serial implements GRecord{
         return poController.searchYearModel(fsValue);
     }
     
-    /**
-     * Check Engine Number Pattern
-     * @return 
-     */
-    public JSONObject checkEngineNo(){
-        return poController.checkEngineNo();
-    }
-    
-    /**
-     * Check Make Frame Number Pattern
-     * @return 
-     */
-    public JSONObject checkMakeFrameNo(){
-        return poController.checkMakeFrameNo();
-    }
-    
-    /**
-     * Check Make Frame Number Pattern
-     * @return 
-     */
-    public JSONObject checkModelFrameNo(){
-        return poController.checkModelFrameNo();
-    }
+//    /**
+//     * Check Engine Number Pattern
+//     * @return 
+//     */
+//    public JSONObject checkEngineNo(){
+//        return poController.checkEngineNo();
+//    }
+//    
+//    /**
+//     * Check Make Frame Number Pattern
+//     * @return 
+//     */
+//    public JSONObject checkMakeFrameNo(){
+//        return poController.checkMakeFrameNo();
+//    }
+//    
+//    /**
+//     * Check Make Frame Number Pattern
+//     * @return 
+//     */
+//    public JSONObject checkModelFrameNo(){
+//        return poController.checkModelFrameNo();
+//    }
     
     /**
      * Search Ownership / Co - Ownership
@@ -256,6 +265,15 @@ public class Vehicle_Serial implements GRecord{
     */
     public JSONObject searchRegsplace(String fsValue){
         return poController.searchRegsplace(fsValue);
+        
+    }
+    
+    /**
+     * For searching available vehicle when key is pressed.
+     * @return {@code true} if a matching available vehicle is found, {@code false} otherwise.
+    */
+    public JSONObject searchAvailableVhcl(){
+        return poController.searchAvailableVhcl();
         
     }
     

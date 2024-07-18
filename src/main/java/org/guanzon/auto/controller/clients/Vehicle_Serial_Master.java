@@ -9,14 +9,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.guanzon.appdriver.agent.ShowDialogFX;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
+import org.guanzon.auto.general.SearchDialog;
 import org.guanzon.auto.model.clients.Model_Vehicle_Serial_Master;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
 import org.guanzon.auto.validator.clients.ValidatorInterface;
@@ -167,15 +166,14 @@ public class Vehicle_Serial_Master implements GRecord {
             return poJSON;
         }
         
-        poJSON = validateEngineFrame();
-        if ("error".equals((String) poJSON.get("result"))) {
-            return poJSON;
-        }
+//        poJSON = validateEngineFrame();
+//        if ("error".equals((String) poJSON.get("result"))) {
+//            return poJSON;
+//        }
         
         if (!pbWtParent) poGRider.beginTrans();
         
         poJSON = poModel.saveRecord();
-
         if ("success".equals((String) poJSON.get("result"))) {
             String lsMsg = (String) poJSON.get("message");
             
@@ -183,11 +181,17 @@ public class Vehicle_Serial_Master implements GRecord {
             poVhclReg.getModel().setSerialID(poModel.getSerialID());
             poVhclReg.getModel().setPlateNo(poModel.getPlateNo());
             poVhclReg.getModel().setPlaceReg(poModel.getPlaceReg());
-            poVhclReg.getModel().setRegisterDte(poModel.getRegisterDte());
+            poVhclReg.setMaster("dRegister",getMaster("dRegister")); //poModel.getRegisterDte()
             poJSON = poVhclReg.saveRecord();
             if("no record to save.".equals((String) poJSON.get("message"))){
                 poJSON.put("result", "success");
                 poJSON.put("message", lsMsg);
+            } else {
+                if("No updates has been made.".equals(poJSON.get("message"))){
+                    poJSON.put("message", lsMsg);
+                } else {
+                    poJSON.put("message", (String) poJSON.get("message"));
+                }
             }
             
             if (!pbWtParent) {poGRider.commitTrans();}
@@ -198,6 +202,8 @@ public class Vehicle_Serial_Master implements GRecord {
         
         return poJSON;
     }
+    
+    
 
     @Override
     public JSONObject deleteRecord(String string) {
@@ -216,6 +222,14 @@ public class Vehicle_Serial_Master implements GRecord {
 
     @Override
     public JSONObject searchRecord(String fsValue, boolean fbByCode) {
+        return searchRecord (fsValue, fbByCode, true);
+    }
+    
+    public JSONObject searchRecord(String fsValue, boolean fbByCode, boolean fbIsVhclSales) {
+        String lsHeader = "Vehicle Serial ID»CS No.»Plate No.»Engine No»Frame No»Vehicle Description»Vehicle Status";
+        String lsColName = "sSerialID»sCSNoxxxx»sPlateNox»sEngineNo»sFrameNox»sDescript»sVhclStat"; 
+        String lsColCrit = "a.sSerialID»a.sCSNoxxxx»b.sPlateNox»a.sEngineNo»a.sFrameNox»c.sDescript»a.cSoldStat";
+        
         String lsSQL = "";
         
         if(fbByCode){
@@ -224,13 +238,27 @@ public class Vehicle_Serial_Master implements GRecord {
             lsSQL = MiscUtil.addCondition(poModel.getSQL(), "( b.sPlateNox LIKE " + SQLUtil.toSQL(fsValue + "%") 
                                                             + " OR a.sCSNoxxxx LIKE " + SQLUtil.toSQL(fsValue + "%") + ") ");
         }
-
-        poJSON = ShowDialogFX.Search(poGRider,
+        
+        if(!fbIsVhclSales){
+            lsSQL =  lsSQL + " AND (a.sClientID != NULL OR TRIM(a.sClientID) <> '' )";
+        }
+        System.out.println(lsSQL);
+//        poJSON = ShowDialogFX.Search(poGRider,
+//                lsSQL,
+//                fsValue,
+//                lsHeader,
+//                lsColName,
+//                lsColCrit,
+//                0);
+        
+        poJSON = SearchDialog.jsonSearch(
+                poGRider,
                 lsSQL,
-                fsValue,
-                "Serial ID»Plate No.»CS No.»Engine No»Frame No»Vehicle Status",
-                "sSerialID»sPlateNox»sCSNoxxxx»sEngineNo»sFrameNox»sVhclStat",
-                "a.sSerialID»b.sPlateNox»a.sCSNoxxxx»a.sEngineNo»a.sFrameNox»a.cSoldStat",
+                    fsValue,
+                lsHeader,//"Client ID»Customer Name", //»Address
+                lsColName, //"sClientID»sCompnyNm", //»CONCAT(bb.sHouseNox, ' ', bb.sAddressx, ', ', c.sTownName, ' ', d.sProvName)
+                "0.2D»0.2D»0.2D»0.3D»0.3D»0.4D»0.4D", 
+                "VEHICLE INFORMATION",
                 0);
 
         if (poJSON != null) {
@@ -261,35 +289,35 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     
-    private JSONObject validateEngineFrame(){
-        JSONObject jObj = new JSONObject();
-        
-        jObj = checkEngineNo();
-        if("error".equals((String) jObj.get("result"))){
-            return jObj;
-        }
-
-        jObj = checkMakeFrameNo();
-        if("error".equals((String) jObj.get("result"))){
-            return jObj;
-        }
-
-        jObj = checkModelFrameNo();
-        if("error".equals((String) jObj.get("result"))){
-            return jObj;
-        }
-            
-        jObj.put("result", "success");
-        jObj.put("message", "Valid Entry");
-        return jObj;
-    }
+//    private JSONObject validateEngineFrame(){
+//        JSONObject jObj = new JSONObject();
+//        
+//        jObj = checkEngineNo();
+//        if("error".equals((String) jObj.get("result"))){
+//            return jObj;
+//        }
+//
+//        jObj = checkMakeFrameNo();
+//        if("error".equals((String) jObj.get("result"))){
+//            return jObj;
+//        }
+//
+//        jObj = checkModelFrameNo();
+//        if("error".equals((String) jObj.get("result"))){
+//            return jObj;
+//        }
+//            
+//        jObj.put("result", "success");
+//        jObj.put("message", "Valid Entry");
+//        return jObj;
+//    }
     
     public JSONObject searchMake(String fsValue) {
         JSONObject jObj = new JSONObject();
         String lsOrigVal = poModel.getMakeID();
         String lsNewVal = "";
         
-        String lsSQL = poModel.getVhclDescSQL();
+        String lsSQL = poModel.getSQLVhclDesc();
         
         lsSQL = MiscUtil.addCondition(lsSQL, " c.sMakeDesc LIKE " + SQLUtil.toSQL(fsValue + "%") 
                                             + " AND a.cRecdStat = '1' ")
@@ -369,7 +397,7 @@ public class Vehicle_Serial_Master implements GRecord {
             }
         }
          
-        String lsSQL = poModel.getVhclDescSQL();
+        String lsSQL = poModel.getSQLVhclDesc();
         
         lsSQL = MiscUtil.addCondition(lsSQL, " b.sModelDsc LIKE " + SQLUtil.toSQL(fsValue + "%") 
                                             + " AND a.sMakeIDxx = " + SQLUtil.toSQL(poModel.getMakeID()) 
@@ -452,7 +480,7 @@ public class Vehicle_Serial_Master implements GRecord {
             }
         }
          
-        String lsSQL = poModel.getVhclDescSQL();
+        String lsSQL = poModel.getSQLVhclDesc();
         
         lsSQL = MiscUtil.addCondition(lsSQL, " e.sTypeDesc LIKE " + SQLUtil.toSQL(fsValue + "%") 
                                             + " AND a.sMakeIDxx = " + SQLUtil.toSQL(poModel.getMakeID()) 
@@ -545,7 +573,7 @@ public class Vehicle_Serial_Master implements GRecord {
             }
         }
          
-        String lsSQL = poModel.getVhclDescSQL();
+        String lsSQL = poModel.getSQLVhclDesc();
         
         lsSQL = MiscUtil.addCondition(lsSQL, " a.sTransMsn LIKE " + SQLUtil.toSQL(fsValue + "%") 
                                             + " AND a.sMakeIDxx = " + SQLUtil.toSQL(poModel.getMakeID()) 
@@ -646,7 +674,7 @@ public class Vehicle_Serial_Master implements GRecord {
         }
 
          
-        String lsSQL = poModel.getVhclDescSQL();
+        String lsSQL = poModel.getSQLVhclDesc();
         
         lsSQL = MiscUtil.addCondition(lsSQL, " d.sColorDsc LIKE " + SQLUtil.toSQL(fsValue + "%") 
                                             + " AND a.sMakeIDxx = " + SQLUtil.toSQL(poModel.getMakeID()) 
@@ -656,7 +684,7 @@ public class Vehicle_Serial_Master implements GRecord {
                                             + " AND a.cRecdStat = '1' ")
                                             + " GROUP BY a.sColorIDx ";
 
-        System.out.println("SEARCH TYPE: " + lsSQL);
+        System.out.println("SEARCH COLOR: " + lsSQL);
         jObj = ShowDialogFX.Search(poGRider,
                 lsSQL,
                 fsValue,
@@ -757,7 +785,7 @@ public class Vehicle_Serial_Master implements GRecord {
             }
         }
          
-        String lsSQL = poModel.getVhclDescSQL();
+        String lsSQL = poModel.getSQLVhclDesc();
         
         lsSQL = MiscUtil.addCondition(lsSQL, " a.nYearModl LIKE " + SQLUtil.toSQL(fsValue + "%") 
                                             + " AND a.sMakeIDxx = " + SQLUtil.toSQL(poModel.getMakeID()) 
@@ -797,173 +825,190 @@ public class Vehicle_Serial_Master implements GRecord {
         return jObj;
     }
     
-    public JSONObject checkEngineNo(){
-        JSONObject jObj = new JSONObject();
-        if(poModel.getMakeID() == null){
-            jObj.put("result", "error");
-            jObj.put("message", "Make cannot be Empty.");
-            return jObj;
-        } else {
-            if(poModel.getMakeID().trim().isEmpty()){
-                jObj.put("result", "error");
-                jObj.put("message", "Make cannot be Empty.");
-                return jObj;
-            }
-        }
-
-        if(poModel.getModelID() == null){
-            jObj.put("result", "error");
-            jObj.put("message", "Model cannot be Empty.");
-            return jObj;
-        } else {
-            if(poModel.getModelID().trim().isEmpty()){
-                jObj.put("result", "error");
-                jObj.put("message", "Model cannot be Empty.");
-                return jObj;
-            }
-        }
-        
-        int lnLength = 0;
-        String lsSQL =    "  SELECT "                          
-                        + "  sModelIDx "                       
-                        + ", nEntryNox "                       
-                        + ", sEngnPtrn "                       
-                        + ", nEngnLenx "                           
-                        + "FROM vehicle_model_engine_pattern ";
-  
-        
-        String lsEngNo = poModel.getEngineNo().substring(0, 3);
-        lsSQL = MiscUtil.addCondition(lsSQL, " sModelIDx = " + SQLUtil.toSQL(poModel.getModelID()) 
-                                                + " AND sEngnPtrn LIKE " + SQLUtil.toSQL(lsEngNo) 
-                                                );
-        System.out.println("ENGINE NO CHECK: " + lsSQL);
-        ResultSet loRS = poGRider.executeQuery(lsSQL);
-
-        if (MiscUtil.RecordCount(loRS) > 0){
-            try {
-                while(loRS.next()){
-                    lnLength = loRS.getInt("nEngnLenx");
-                }
-
-                MiscUtil.close(loRS);
-                if(lnLength != poModel.getEngineNo().length()) {
-                    jObj.put("result", "error");
-                    jObj.put("message", "Engine Number Length does not equal to Model Engine Pattern Length." );
-                    return jObj;
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(Vehicle_Serial_Master.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            jObj.put("result", "error");
-            jObj.put("message", "Engine Number does not exist in Model Engine Pattern." );
-            return jObj;
-        }
-        
-        return jObj;
-    }
+//    public JSONObject checkEngineNo(){
+//        JSONObject jObj = new JSONObject();
+//        if(poModel.getMakeID() == null){
+//            jObj.put("result", "error");
+//            jObj.put("message", "Make cannot be Empty.");
+//            return jObj;
+//        } else {
+//            if(poModel.getMakeID().trim().isEmpty()){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Make cannot be Empty.");
+//                return jObj;
+//            }
+//        }
+//
+//        if(poModel.getModelID() == null){
+//            jObj.put("result", "error");
+//            jObj.put("message", "Model cannot be Empty.");
+//            return jObj;
+//        } else {
+//            if(poModel.getModelID().trim().isEmpty()){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Model cannot be Empty.");
+//                return jObj;
+//            }
+//        }
+//        
+//        if(poModel.getEngineNo().trim().isEmpty() || poModel.getEngineNo().replace(" ", "").length() < 3 ){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Invalid Engine Number.");
+//                return jObj;
+//        }
+//        
+//        int lnLength = 0;
+//        String lsSQL =    "  SELECT "                          
+//                        + "  sModelIDx "                       
+//                        + ", nEntryNox "                       
+//                        + ", sEngnPtrn "                       
+//                        + ", nEngnLenx "                           
+//                        + "FROM vehicle_model_engine_pattern ";
+//  
+//        
+//        String lsEngNo = poModel.getEngineNo().substring(0, 3);
+//        lsSQL = MiscUtil.addCondition(lsSQL, " sModelIDx = " + SQLUtil.toSQL(poModel.getModelID()) 
+//                                                + " AND sEngnPtrn LIKE " + SQLUtil.toSQL(lsEngNo) 
+//                                                );
+//        System.out.println("ENGINE NO CHECK: " + lsSQL);
+//        ResultSet loRS = poGRider.executeQuery(lsSQL);
+//
+//        if (MiscUtil.RecordCount(loRS) > 0){
+//            try {
+//                while(loRS.next()){
+//                    lnLength = loRS.getInt("nEngnLenx");
+//                }
+//
+//                MiscUtil.close(loRS);
+//                if(lnLength != poModel.getEngineNo().length()) {
+//                    jObj.put("result", "error");
+//                    jObj.put("message", "Engine Number Length does not equal to Model Engine Pattern Length." );
+//                    return jObj;
+//                }
+//            } catch (SQLException ex) {
+//                Logger.getLogger(Vehicle_Serial_Master.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        } else {
+//            jObj.put("result", "error");
+//            jObj.put("message", "Engine Number does not exist in Model Engine Pattern." );
+//            return jObj;
+//        }
+//        
+//        return jObj;
+//    }
     
-    public JSONObject checkMakeFrameNo(){
-        JSONObject jObj = new JSONObject();
-        if(poModel.getMakeID() == null){
-            jObj.put("result", "error");
-            jObj.put("message", "Make cannot be Empty.");
-            return jObj;
-        } else {
-            if(poModel.getMakeID().trim().isEmpty()){
-                jObj.put("result", "error");
-                jObj.put("message", "Make cannot be Empty.");
-                return jObj;
-            }
-        }
-        
-        String lsFrameNo = poModel.getFrameNo().substring(0, 3);
-        int lnLength = 0;
-        String lsSQL =    "  SELECT "                        
-                        + "  sMakeIDxx "                     
-                        + ", nEntryNox "                     
-                        + ", sFrmePtrn "                       
-                        + "FROM vehicle_make_frame_pattern ";
-
-        lsSQL = MiscUtil.addCondition(lsSQL, " sMakeIDxx = " + SQLUtil.toSQL(poModel.getMakeID()) 
-                                                + " AND sFrmePtrn = " + SQLUtil.toSQL(lsFrameNo) 
-                                                );
-        System.out.println("MAKE FRAME CHECK: " + lsSQL);
-        ResultSet loRS = poGRider.executeQuery(lsSQL);
-
-        if (MiscUtil.RecordCount(loRS) == 0){
-            jObj.put("result", "error");
-            jObj.put("message", "Frame Number does not exist in Make Frame Pattern." );
-            return jObj;
-        }
-        
-        return jObj;
-    }
+//    public JSONObject checkMakeFrameNo(){
+//        JSONObject jObj = new JSONObject();
+//        if(poModel.getMakeID() == null){
+//            jObj.put("result", "error");
+//            jObj.put("message", "Make cannot be Empty.");
+//            return jObj;
+//        } else {
+//            if(poModel.getMakeID().trim().isEmpty()){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Make cannot be Empty.");
+//                return jObj;
+//            }
+//        }
+//        
+//        if(poModel.getFrameNo().trim().isEmpty() || poModel.getFrameNo().replace(" ", "").length() < 6 ){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Invalid Frame Number.");
+//                return jObj;
+//        }
+//        
+//        String lsFrameNo = poModel.getFrameNo().substring(0, 3);
+//        String lsSQL =    "  SELECT "                        
+//                        + "  sMakeIDxx "                     
+//                        + ", nEntryNox "                     
+//                        + ", sFrmePtrn "                       
+//                        + "FROM vehicle_make_frame_pattern ";
+//
+//        lsSQL = MiscUtil.addCondition(lsSQL, " sMakeIDxx = " + SQLUtil.toSQL(poModel.getMakeID()) 
+//                                                + " AND sFrmePtrn = " + SQLUtil.toSQL(lsFrameNo) 
+//                                                );
+//        System.out.println("MAKE FRAME CHECK: " + lsSQL);
+//        ResultSet loRS = poGRider.executeQuery(lsSQL);
+//
+//        if (MiscUtil.RecordCount(loRS) == 0){
+//            jObj.put("result", "error");
+//            jObj.put("message", "Frame Number does not exist in Make Frame Pattern." );
+//            return jObj;
+//        }
+//        
+//        return jObj;
+//    }
     
-    public JSONObject checkModelFrameNo(){
-        JSONObject jObj = new JSONObject();
-        if(poModel.getMakeID() == null){
-            jObj.put("result", "error");
-            jObj.put("message", "Make cannot be Empty.");
-            return jObj;
-        } else {
-            if(poModel.getMakeID().trim().isEmpty()){
-                jObj.put("result", "error");
-                jObj.put("message", "Make cannot be Empty.");
-                return jObj;
-            }
-        }
-
-        if(poModel.getModelID() == null){
-            jObj.put("result", "error");
-            jObj.put("message", "Model cannot be Empty.");
-            return jObj;
-        } else {
-            if(poModel.getModelID().trim().isEmpty()){
-                jObj.put("result", "error");
-                jObj.put("message", "Model cannot be Empty.");
-                return jObj;
-            }
-        }
-        
-        int lnLength = 0;
-        String lsSQL =    "  SELECT "                        
-                        + "  sModelIDx "                     
-                        + ", nEntryNox "                     
-                        + ", sFrmePtrn "                    
-                        + ", nFrmeLenx "                         
-                        + "FROM vehicle_model_frame_pattern ";
-
-        String lsFrameNo = poModel.getFrameNo().substring(3, 6);
-        lsSQL = MiscUtil.addCondition(lsSQL, " sModelIDx = " + SQLUtil.toSQL(poModel.getModelID()) 
-                                                + " AND sFrmePtrn = " + SQLUtil.toSQL(lsFrameNo) 
-                                                );
-        System.out.println("MODEL FRAME CHECK: " + lsSQL);
-        ResultSet loRS = poGRider.executeQuery(lsSQL);
-        
-        if (MiscUtil.RecordCount(loRS) > 0){
-            try {
-                while(loRS.next()){
-                    lnLength = loRS.getInt("nFrmeLenx");
-                }
-
-                MiscUtil.close(loRS);
-                if(lnLength != poModel.getFrameNo().length()) {
-                    jObj.put("result", "error");
-                    jObj.put("message", "Frame Number Length does not equal to Model Frame Pattern Length." );
-                    return jObj;
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(Vehicle_Serial_Master.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            jObj.put("result", "error");
-            jObj.put("message", "Frame Number does not exist in Model Frame Pattern." );
-            return jObj;
-        }
-        
-        return jObj;
-    }
+//    public JSONObject checkModelFrameNo(){
+//        JSONObject jObj = new JSONObject();
+//        if(poModel.getMakeID() == null){
+//            jObj.put("result", "error");
+//            jObj.put("message", "Make cannot be Empty.");
+//            return jObj;
+//        } else {
+//            if(poModel.getMakeID().trim().isEmpty()){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Make cannot be Empty.");
+//                return jObj;
+//            }
+//        }
+//
+//        if(poModel.getModelID() == null){
+//            jObj.put("result", "error");
+//            jObj.put("message", "Model cannot be Empty.");
+//            return jObj;
+//        } else {
+//            if(poModel.getModelID().trim().isEmpty()){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Model cannot be Empty.");
+//                return jObj;
+//            }
+//        }
+//        
+//        if(poModel.getFrameNo().trim().isEmpty() || poModel.getFrameNo().replace(" ", "").length() < 6 ){
+//                jObj.put("result", "error");
+//                jObj.put("message", "Invalid Frame Number.");
+//                return jObj;
+//        }
+//        
+//        int lnLength = 0;
+//        String lsSQL =    "  SELECT "                        
+//                        + "  sModelIDx "                     
+//                        + ", nEntryNox "                     
+//                        + ", sFrmePtrn "                    
+//                        + ", nFrmeLenx "                         
+//                        + "FROM vehicle_model_frame_pattern ";
+//
+//        String lsFrameNo = poModel.getFrameNo().substring(3, 6);
+//        lsSQL = MiscUtil.addCondition(lsSQL, " sModelIDx = " + SQLUtil.toSQL(poModel.getModelID()) 
+//                                                + " AND sFrmePtrn = " + SQLUtil.toSQL(lsFrameNo) 
+//                                                );
+//        System.out.println("MODEL FRAME CHECK: " + lsSQL);
+//        ResultSet loRS = poGRider.executeQuery(lsSQL);
+//        
+//        if (MiscUtil.RecordCount(loRS) > 0){
+//            try {
+//                while(loRS.next()){
+//                    lnLength = loRS.getInt("nFrmeLenx");
+//                }
+//
+//                MiscUtil.close(loRS);
+//                if(lnLength != poModel.getFrameNo().length()) {
+//                    jObj.put("result", "error");
+//                    jObj.put("message", "Frame Number Length does not equal to Model Frame Pattern Length." );
+//                    return jObj;
+//                }
+//            } catch (SQLException ex) {
+//                Logger.getLogger(Vehicle_Serial_Master.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        } else {
+//            jObj.put("result", "error");
+//            jObj.put("message", "Frame Number does not exist in Model Frame Pattern." );
+//            return jObj;
+//        }
+//        
+//        return jObj;
+//    }
     
     /**
      * Search Ownership / Co - Ownership
@@ -1016,7 +1061,7 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     public JSONObject searchDealer(String fsValue) {
-        String lsSQL = MiscUtil.addCondition(poClient.getModel().getSQL(), " a.sCompnyNm LIKE " + SQLUtil.toSQL(fsValue + "%")
+        String lsSQL = MiscUtil.addCondition(poModel.getSQLClientMaster(), " a.sCompnyNm LIKE " + SQLUtil.toSQL(fsValue + "%")
                                                                               + " AND a.cClientTp = '1' AND a.cRecdStat = '1' ");
         System.out.println(lsSQL);
         JSONObject jObj = ShowDialogFX.Search(poGRider, 
@@ -1024,22 +1069,24 @@ public class Vehicle_Serial_Master implements GRecord {
                                          fsValue,
                                          "Dealership ID»Dealership", 
                                          "sClientID»sCompnyNm",
-                                         "sClientID»sCompnyNm",
+                                         "a.sClientID»a.sCompnyNm",
                                         1);
         if (jObj != null) {
-            if("success".equals(jObj.get("result"))){
+            if(!"error".equals(jObj.get("result"))){
                 poModel.setCompnyID((String) jObj.get("sClientID"));
                 poModel.setDealerNm((String) jObj.get("sCompnyNm"));
             } else {
                 poModel.setCompnyID("");
-                poModel.setDealerNm("");
+                poModel.setDealerNm(fsValue);
+                jObj.put("result", "error");
+                jObj.put("message", "No record loaded. Dealer Name will be set only.");
             }
         } else {
             poModel.setCompnyID("");
-            poModel.setDealerNm("");
+            poModel.setDealerNm(fsValue);
             jObj = new JSONObject();
             jObj.put("result", "error");
-            jObj.put("message", "No record loaded.");
+            jObj.put("message", "No record loaded. Dealer Name will be set only.");
             return jObj;
         }
         
@@ -1070,7 +1117,7 @@ public class Vehicle_Serial_Master implements GRecord {
                                             0);
             
         if (jObj != null) {
-            if("success".equals(jObj.get("result"))){
+            if(!"error".equals(jObj.get("result"))){
                 poModel.setPlaceReg(((String) jObj.get("sTownName") + " " + (String) jObj.get("sProvName")));
             } else {
                 poModel.setPlaceReg("");
@@ -1091,21 +1138,32 @@ public class Vehicle_Serial_Master implements GRecord {
      * @return {@code true} if a matching available vehicle is found, {@code false} otherwise.
     */
     public JSONObject searchAvailableVhcl(){
-        String lsHeader = "Vehicle Serial»CS No»Vehicle Description»Plate No»Frame Number»Engine Number";
-        String lsColName = "sSerialID»sCSNoxxxx»sDescript»sPlateNox»sFrameNox»sEngineNo"; 
-        String lsColCrit = "a.sSerialID»a.sCSNoxxxx»b.sPlateNox»c.sDescript»a.sFrameNox»a.sEngineNo";
-        String lsSQL = poModel.getSQL();
-        lsSQL = MiscUtil.addCondition(lsSQL, " a.cSoldStat = '1' AND (ISNULL(a.sClientID) OR  TRIM(a.sClientID) = '' )" );
+        String lsHeader = "Vehicle Serial ID»CS No.»Plate No.»Engine No»Frame No»Vehicle Description»Vehicle Status";
+        String lsColName = "sSerialID»sCSNoxxxx»sPlateNox»sEngineNo»sFrameNox»sDescript»sVhclStat"; 
+        String lsColCrit = "a.sSerialID»a.sCSNoxxxx»b.sPlateNox»a.sEngineNo»a.sFrameNox»c.sDescript»a.cSoldStat";
         
-        ResultSet loRS;
-        loRS = poGRider.executeQuery(lsSQL);
-        JSONObject loJSON = ShowDialogFX.Search(poGRider, 
-                                        lsSQL, 
-                                        "", 
-                                        lsHeader, 
-                                        lsColName, 
-                                        lsColCrit, 
-                                        0);
+        String lsSQL = poModel.getSQL();
+        lsSQL = MiscUtil.addCondition(lsSQL, " (a.cSoldStat = '0' OR a.cSoldStat = '1' ) AND (ISNULL(a.sClientID) OR  TRIM(a.sClientID) = '' )" );
+        System.out.println(lsSQL);
+//        ResultSet loRS;
+//        loRS = poGRider.executeQuery(lsSQL);
+//        JSONObject loJSON = ShowDialogFX.Search(poGRider, 
+//                                        lsSQL, 
+//                                        "", 
+//                                        lsHeader, 
+//                                        lsColName, 
+//                                        lsColCrit, 
+//                                        0);
+        
+        JSONObject loJSON = SearchDialog.jsonSearch(
+                poGRider,
+                lsSQL,
+                    "",
+                lsHeader,
+                lsColName, 
+                "0.2D»0.2D»0.2D»0.3D»0.3D»0.4D»0.4D", 
+                "VEHICLE INFORMATION",
+                0);
         
         
         if (loJSON != null){
