@@ -73,7 +73,6 @@ public class Client_Master implements GRecord{
         return setMaster(poClient.getColumn(fsCol), foData);
     }
 
-
     @Override
     public Object getMaster(int fnCol) {
         if(pnEditMode == EditMode.UNKNOWN)
