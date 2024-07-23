@@ -68,12 +68,38 @@ public class Vehicle_Registration implements GRecord {
 
     @Override
     public JSONObject newRecord() {
-        return poModel.newRecord();
+        poJSON = new JSONObject();
+        try{
+            pnEditMode = EditMode.ADDNEW;
+            poModel = new Model_Vehicle_Registration(poGRider);
+            
+            poModel.newRecord();
+            if (poModel == null){
+                poJSON.put("result", "error");
+                poJSON.put("message", "Vehicle Registration: initialized new record failed.");
+                return poJSON;
+            }else{
+                poJSON.put("result", "success");
+                poJSON.put("message", "initialized new record.");
+            }      
+
+        }catch(NullPointerException e){
+            poJSON.put("result", "error");
+            poJSON.put("message", e.getMessage());
+        }
+        
+        return poJSON;
     }
 
     @Override
     public JSONObject openRecord(String fsValue) {
-        return poModel.openRecord(fsValue);
+        poModel = new Model_Vehicle_Registration(poGRider);
+        JSONObject loJSON = poModel.openRecord(fsValue);
+        
+        if(!"error".equals((String) loJSON.get("result"))){
+            pnEditMode = poModel.getEditMode();
+        } 
+        return loJSON;
     }
 
     @Override
@@ -86,27 +112,44 @@ public class Vehicle_Registration implements GRecord {
         } else {
             loJSON.put("result", "error");
             loJSON.put("message", "No record loaded to update.");
-        }
+        } 
         return loJSON;
     }
 
     @Override
     public JSONObject saveRecord() {
-        if (!pbWthParent) {
-            poGRider.beginTrans();
+        boolean lbSave = false;
+        poJSON = new JSONObject();
+        
+        if(pnEditMode == EditMode.ADDNEW){
+            if(poModel.getPlateNo() != null){
+                if(!poModel.getPlateNo().trim().isEmpty()){
+                    lbSave = true;
+                }
+            }
+            
+            if(poModel.getPlaceReg() != null){
+                if(!poModel.getPlaceReg().trim().isEmpty()){
+                    lbSave = true;
+                }
+            } 
+            
+            if(!lbSave){
+                poJSON.put("result", "error");
+                poJSON.put("message", "no record to save.");
+                return poJSON;
+            }
         }
-
+        
+//        if (!pbWthParent) {poGRider.beginTrans();}
         poJSON = poModel.saveRecord();
 
-        if ("success".equals((String) poJSON.get("result"))) {
-            if (!pbWthParent) {
-                poGRider.commitTrans();
-            }
-        } else {
-            if (!pbWthParent) {
-                poGRider.rollbackTrans();
-            }
-        }
+//        if ("success".equals((String) poJSON.get("result"))) {
+//            if (!pbWthParent) {poGRider.commitTrans();}
+//        } else {
+//            if (!pbWthParent) {poGRider.rollbackTrans();}
+//        }
+        
         return poJSON;
     }
 
@@ -157,60 +200,12 @@ public class Vehicle_Registration implements GRecord {
 
     @Override
     public JSONObject searchRecord(String fsValue, boolean fbByCode) {
-        String lsCondition = "";
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//        if (psRecdStat.length() > 1) {
-//            for (int lnCtr = 0; lnCtr <= psRecdStat.length() - 1; lnCtr++) {
-//                lsCondition += ", " + SQLUtil.toSQL(Character.toString(psRecdStat.charAt(lnCtr)));
-//            }
-//
-//            lsCondition = "cRecdStat IN (" + lsCondition.substring(2) + ")";
-//        } else {
-//            lsCondition = "cRecdStat = " + SQLUtil.toSQL(psRecdStat);
-//        }
-//
-//        String lsSQL = MiscUtil.addCondition(poModel.makeSelectSQL(), " sDescript LIKE "
-//                + SQLUtil.toSQL(fsValue + "%") + " AND " + lsCondition);
-//
-//        poJSON = ShowDialogFX.Search(poGRider,
-//                lsSQL,
-//                fsValue,
-//                "Vehicle Serial»Plate No.»CS No.»Description",
-//                "sSerialID»sPlateNox»sCSNoxxxx»sDescript",
-//                "sSerialID»sPlateNox»sCSNoxxxx»sDescript",
-//                fbByCode ? 0 : 1);
-//
-//        if (poJSON != null) {
-//            return poModel.openRecord((String) poJSON.get("sSerialID"));
-//        } else {
-//            poJSON.put("result", "error");
-//            poJSON.put("message", "No record loaded to update.");
-//            return poJSON;
-//        }
     }
 
     @Override
     public Model_Vehicle_Registration getModel() {
         return poModel;
-    }
-    
-    public String getSQL(){
-        return " SELECT " +
-                "  sSerialID," +
-                "  sCSRValNo," +
-                "  sPNPClrNo," +
-                "  sCRNoxxxx," +
-                "  sCRENoxxx," +
-                "  sRegORNox," +
-                "  sFileNoxx," +
-                "  sPlateNox," +
-                "  dRegister," +
-                "  sPlaceReg," +
-                "  sEntryByx," +
-                "  dEntryDte," +
-                "  sModified," +
-                "  dModified " +
-                "FROM vehicle_serial_registration";
     }
     
     

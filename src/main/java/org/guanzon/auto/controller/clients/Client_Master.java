@@ -73,7 +73,6 @@ public class Client_Master implements GRecord{
         return setMaster(poClient.getColumn(fsCol), foData);
     }
 
-
     @Override
     public Object getMaster(int fnCol) {
         if(pnEditMode == EditMode.UNKNOWN)
@@ -285,7 +284,6 @@ public class Client_Master implements GRecord{
         
         //lsSQL = lsSQL + " GROUP BY a.sClientID";
         JSONObject loJSON;
-        String lsValue;
             
         //System.out.println(lsSQL);
 //        loJSON = ShowDialogFX.Search(poGRider, 
@@ -307,17 +305,15 @@ public class Client_Master implements GRecord{
                 0);
             
         
-        if (loJSON != null && !"error".equals((String) loJSON.get("result"))) {
-            //System.out.println("sClientID = " + (String) loJSON.get("sClientID"));
-            lsValue = (String) loJSON.get("sClientID");
+        if (loJSON != null) {
         }else {
             loJSON  = new JSONObject();  
             loJSON.put("result", "error");
             loJSON.put("message", "No client information found");
             return loJSON;
         }
-        //System.out.println("loJSON = " + loJSON.toJSONString());
-        return loJSON; //openRecord(lsValue);
+        
+        return loJSON;
     }
 
     @Override
@@ -363,18 +359,23 @@ public class Client_Master implements GRecord{
                             0);
             
         if (loJSON != null) {
-            poClient.setSpouseID((String) loJSON.get("sClientID"));
-            poClient.setSpouseNm((String) loJSON.get("sCompnyNm"));
-
-            loJSON.put("result", "success");
-            loJSON.put("message", "Search spouse success.");
-            return loJSON;
+            if(!"error".equals(loJSON.get("result"))){
+                poClient.setSpouseID((String) loJSON.get("sClientID"));
+                poClient.setSpouseNm((String) loJSON.get("sCompnyNm"));
+            } else {
+                poClient.setSpouseID("");
+                poClient.setSpouseNm("");
+            }
         }else {
+            poClient.setSpouseID("");
+            poClient.setSpouseNm("");
             loJSON  = new JSONObject();  
             loJSON.put("result", "error");
             loJSON.put("message", "No record selected.");
             return loJSON;
         }
+        
+        return loJSON;
     }
     
     public JSONObject searchCitizenShip(String fsValue){
@@ -382,48 +383,51 @@ public class Client_Master implements GRecord{
         String lsSQL = " SELECT " 
                        + "  sCntryCde" 
                        + ", sCntryNme" 
+                       + ", UPPER(sNational) sNational"
                        + " FROM Country";
                 
-        lsSQL = MiscUtil.addCondition(lsSQL, "sCntryNme LIKE " + SQLUtil.toSQL(fsValue + "%"));
+        lsSQL = MiscUtil.addCondition(lsSQL, " sNational LIKE " + SQLUtil.toSQL(fsValue + "%") +
+                                                " AND sNational <> '' " ) +
+                                                " GROUP BY sNational ";
          
         loJSON = ShowDialogFX.Search(poGRider, 
                             lsSQL, 
                             fsValue,
-                            "Country", 
-                            "sCntryNme",
-                            "sCntryNme",
+                            "Nationality", 
+                            "sNational",
+                            "sNational",
                             0);
             
-            if (loJSON != null) {
+        if (loJSON != null) {
+            if(!"error".equals(loJSON.get("result"))){
                 poClient.setCitizen((String) loJSON.get("sCntryCde"));
-                poClient.setCntryNme((String) loJSON.get("sCntryNme"));
-                
-                loJSON.put("result", "success");
-                loJSON.put("message", "Search country success.");
-                return loJSON;
-            }else {
-                
-                loJSON  = new JSONObject();  
-                loJSON.put("result", "error");
-                loJSON.put("message", "No record selected.");
-                return loJSON;
+                poClient.setCntryNme((String) loJSON.get("sNational"));
             }
+        }else {
+            poClient.setCitizen("");
+            poClient.setCntryNme("");
+            loJSON  = new JSONObject();  
+            loJSON.put("result", "error");
+            loJSON.put("message", "No record selected.");
+            return loJSON;
+        }
+        return loJSON;
     }
     
     public JSONObject searchBirthPlc(String fsValue){
         JSONObject loJSON;
         String lsSQL =  " SELECT " 
                         + "  IFNULL(a.sTownIDxx, '') sTownIDxx " 
-                        + ", IFNULL(a.sTownName, '') sTownName " 
-                        + ", IFNULL(a.sZippCode, '') sZippCode "                      
-                        + ", IFNULL(b.sProvName, '') sProvName "  
+                        + ", IFNULL(UPPER(a.sTownName), '') sTownName " 
+                        + ", IFNULL(UPPER(a.sZippCode), '') sZippCode "                      
+                        + ", IFNULL(UPPER(b.sProvName), '') sProvName "  
                         + " FROM TownCity a"  
                         + " LEFT JOIN Province b on b.sProvIDxx = a.sProvIDxx";
 
         //lsSQL =  MiscUtil.addCondition(lsSQL, " a.sTownName LIKE " + SQLUtil.toSQL(fsValue + "%")
         //                                        + " OR TRIM(CONCAT(a.sTownName, ', ', b.sProvName)) LIKE " + SQLUtil.toSQL("%" +fsValue + "%"));
         
-        lsSQL =  MiscUtil.addCondition(lsSQL, "TRIM(CONCAT(a.sTownName, ', ', b.sProvName)) LIKE " + SQLUtil.toSQL("%" +fsValue + "%"));
+        lsSQL =  MiscUtil.addCondition(lsSQL, "TRIM(CONCAT(a.sTownName, ', ', b.sProvName)) LIKE " + SQLUtil.toSQL("%" +fsValue + "%")) + " GROUP BY a.sTownName, b.sProvName";
        
         //System.out.println(lsSQL);
         loJSON = ShowDialogFX.Search(poGRider, 
@@ -434,21 +438,29 @@ public class Client_Master implements GRecord{
                      "a.sTownIDxx»TRIM(CONCAT(a.sTownName, ', ', b.sProvName))»b.sProvName",
                             1);
             
-            if (loJSON != null) {
-                poClient.setBirthPlc((String) loJSON.get("sTownIDxx"));
-                poClient.setTownName((String) loJSON.get("sTownName")+ ", " + (String) loJSON.get("sProvName"));
-                
-                loJSON.put("result", "success");
-                loJSON.put("message", "Search birthplace success.");
-                return loJSON;
-            }else {
-                poClient.setBirthPlc("");
-                poClient.setTownName("");
-                loJSON  = new JSONObject();  
-                loJSON.put("result", "error");
-                loJSON.put("message", "No record selected.");
-                return loJSON;
+        if (loJSON != null) {
+            if(!"error".equals(loJSON.get("result"))){
+                if(loJSON.get("sTownIDxx") != null){
+                    poClient.setBirthPlc((String) loJSON.get("sTownIDxx"));
+                    poClient.setTownName((String) loJSON.get("sTownName")+ ", " + (String) loJSON.get("sProvName"));
+                } else {
+                    poClient.setBirthPlc("");
+                    poClient.setTownName("");
+                    loJSON  = new JSONObject();  
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "No record selected.");
+                    return loJSON;
+                }
             }
+        }else {
+            poClient.setBirthPlc("");
+            poClient.setTownName("");
+            loJSON  = new JSONObject();  
+            loJSON.put("result", "error");
+            loJSON.put("message", "No record selected.");
+            return loJSON;
+        }
+        return loJSON;
     }
     
     
