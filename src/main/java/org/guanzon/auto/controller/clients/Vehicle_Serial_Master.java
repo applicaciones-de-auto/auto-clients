@@ -129,6 +129,7 @@ public class Vehicle_Serial_Master implements GRecord {
 
     @Override
     public JSONObject updateRecord() {
+        poJSON = new JSONObject();
         if(poVhclReg.getEditMode() == EditMode.UNKNOWN){
             poJSON = poVhclReg.newRecord();
             
@@ -143,7 +144,6 @@ public class Vehicle_Serial_Master implements GRecord {
             }
         }
         
-        poJSON = new JSONObject();
         if (pnEditMode != EditMode.READY && pnEditMode != EditMode.UPDATE){
             poJSON.put("result", "error");
             poJSON.put("message", "Invalid edit mode.");
@@ -226,9 +226,9 @@ public class Vehicle_Serial_Master implements GRecord {
     }
     
     public JSONObject searchRecord(String fsValue, boolean fbByCode, boolean fbIsVhclSales) {
-        String lsHeader = "Vehicle Serial ID»CS No.»Plate No.»Engine No»Frame No»Vehicle Description»Vehicle Status";
-        String lsColName = "sSerialID»sCSNoxxxx»sPlateNox»sEngineNo»sFrameNox»sDescript»sVhclStat"; 
-        String lsColCrit = "a.sSerialID»a.sCSNoxxxx»b.sPlateNox»a.sEngineNo»a.sFrameNox»c.sDescript»a.cSoldStat";
+        String lsHeader = "Vehicle Serial ID»CS No.»Plate No.»Owner Name»Engine No»Frame No»Vehicle Description»Vehicle Status";
+        String lsColName = "sSerialID»sCSNoxxxx»sPlateNox»sOwnerNmx»sEngineNo»sFrameNox»sDescript»sVhclStat"; 
+        String lsColCrit = "a.sSerialID»a.sCSNoxxxx»b.sPlateNox»h.sCompnyNm»a.sEngineNo»a.sFrameNox»c.sDescript»a.cSoldStat";
         
         String lsSQL = "";
         
@@ -257,7 +257,7 @@ public class Vehicle_Serial_Master implements GRecord {
                     fsValue,
                 lsHeader,//"Client ID»Customer Name", //»Address
                 lsColName, //"sClientID»sCompnyNm", //»CONCAT(bb.sHouseNox, ' ', bb.sAddressx, ', ', c.sTownName, ' ', d.sProvName)
-                "0.2D»0.2D»0.2D»0.3D»0.3D»0.4D»0.4D", 
+                "0.2D»0.2D»0.2D»0.3D»0.3D»0.3D»0.4D»0.4D", 
                 "VEHICLE INFORMATION",
                 0);
 

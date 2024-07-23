@@ -98,7 +98,9 @@ public class Vehicle_Registration implements GRecord {
         
         if(!"error".equals((String) loJSON.get("result"))){
             pnEditMode = poModel.getEditMode();
-        } 
+        } else {
+            pnEditMode = EditMode.UNKNOWN;
+        }
         return loJSON;
     }
 
