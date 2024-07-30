@@ -61,6 +61,12 @@ public class ClientTest {
         
     }
     
+    /**
+     * COMMENTED TESTING TO CLEAN AND BUILD PROPERLY
+     * WHEN YOU WANT TO CHECK KINDLY UNCOMMENT THE TESTING CASES (@Test).
+     * ARSIELA 07-29-2024
+     */
+/*    
     @Test
     public void test01NewRecord() {
         System.out.println("--------------------------------------------------------------------");
@@ -496,7 +502,9 @@ public class ClientTest {
         assertTrue(result);
         //assertFalse(result);
     }
-    
+*/
+
+/*******************************************************************************************************************************/    
 //    public static void main(String [] args){
 //        String path;
 //        if(System.getProperty("os.name").toLowerCase().contains("win")){

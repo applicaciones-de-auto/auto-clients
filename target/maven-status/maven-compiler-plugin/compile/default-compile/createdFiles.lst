@@ -15,6 +15,7 @@ org\guanzon\auto\resultSet2XML\clients\ClientSocialMedia.class
 org\guanzon\auto\main\clients\Sales_Agent.class
 org\guanzon\auto\controller\clients\Vehicle_Registration.class
 org\guanzon\auto\resultSet2XML\clients\ClientMobile.class
+org\guanzon\auto\resultSet2XML\clients\SalesExecutive.class
 org\guanzon\auto\resultSet2XML\clients\VehicleSerial.class
 org\guanzon\auto\controller\clients\Addresses.class
 org\guanzon\auto\resultSet2XML\clients\ClientMaster.class
