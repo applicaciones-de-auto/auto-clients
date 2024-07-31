@@ -90,7 +90,7 @@ public class Sales_Executive_Master implements GRecord {
             poModel.newRecord();
             if (poModel == null){
                 poJSON.put("result", "error");
-                poJSON.put("message", "Vehicle Registration: initialized new record failed.");
+                poJSON.put("message", "initialized new record failed.");
                 return poJSON;
             }else{
                 poJSON.put("result", "success");
