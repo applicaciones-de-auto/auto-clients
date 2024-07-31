@@ -18,6 +18,7 @@ import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
+import org.guanzon.auto.general.CancelForm;
 import org.guanzon.auto.model.clients.Model_Sales_Executive;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
 import org.guanzon.auto.validator.clients.ValidatorInterface;
@@ -161,19 +162,29 @@ public class Sales_Executive_Master implements GRecord {
         poJSON = new JSONObject();
 
         if (poModel.getEditMode() == EditMode.UPDATE) {
-            poJSON = poModel.setActive(false);
-
-            if ("error".equals((String) poJSON.get("result"))) {
-                return poJSON;
-            }
-
-            poJSON = poModel.saveRecord();
-            if ("success".equals((String) poJSON.get("result"))) {
-                poJSON.put("result", "success");
-                poJSON.put("message", "Deactivation success.");
-            } else {
-                poJSON.put("result", "error");
-                poJSON.put("message", "Deactivation failed.");
+            try {
+                poJSON = poModel.setActive(false);
+                if ("error".equals((String) poJSON.get("result"))) {
+                    return poJSON;
+                }
+                
+                CancelForm cancelform = new CancelForm();
+                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(), "SALES EXECUTIVE")) {
+                    poJSON.put("result", "error");
+                    poJSON.put("message", "Deactivation failed.");
+                    return poJSON;
+                }
+                
+                poJSON = poModel.saveRecord();
+                if ("success".equals((String) poJSON.get("result"))) {
+                    poJSON.put("result", "success");
+                    poJSON.put("message", "Deactivation success.");
+                } else {
+                    poJSON.put("result", "error");
+                    poJSON.put("message", "Deactivation failed.");
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Sales_Executive_Master.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             poJSON = new JSONObject();
@@ -225,7 +236,7 @@ public class Sales_Executive_Master implements GRecord {
                 lsSQL,
                 fsValue,
                 "Employee ID»Name»Address",
-                "sClientID»sCompnyNm»xAddressx",
+                "sClientID»sCompnyNm»sAddressx",
                 "a.sClientID»b.sCompnyNm»IFNULL(b.sAddressx,IFNULL(CONCAT( IFNULL(CONCAT(f.sAddressx,' '), ''), IFNULL(CONCAT(h.sBrgyName,' '), ''), IFNULL(CONCAT(g.sTownName, ', '),''), IFNULL(CONCAT(i.sProvName),'') ), ''))",
                 1);
 
@@ -289,7 +300,7 @@ public class Sales_Executive_Master implements GRecord {
                         + " AND d.sBranchCD = " + SQLUtil.toSQL(poGRider.getBranchCode());                                                                                                                                                                                      
         
         if (fbByCode)
-            lsSQL = MiscUtil.addCondition(lsSQL, "a.sEmployID = " + SQLUtil.toSQL(fsValue));   
+            lsSQL = MiscUtil.addCondition(lsSQL, "a.sEmployID LIKE " + SQLUtil.toSQL(fsValue + "%"));   
         else {
             if (!fsValue.isEmpty()) {
                 lsSQL = MiscUtil.addCondition(lsSQL, "b.sCompnyNm LIKE " + SQLUtil.toSQL(fsValue + "%")); 
@@ -411,7 +422,7 @@ public class Sales_Executive_Master implements GRecord {
         try {
             
             String lsSQL = getSQ_VSPTransaction();
-            lsSQL = MiscUtil.addCondition(lsSQL, " a.sEmployID = " + SQLUtil.toSQL(poModel.getClientID()))
+            lsSQL = MiscUtil.addCondition(lsSQL, " b.sEmployID = " + SQLUtil.toSQL(poModel.getClientID()))
                                                     + " AND a.cTranStat = '1'  "
                                                     + " GROUP BY a.sTransNox ORDER BY a.dTransact DESC " ;
             
@@ -454,4 +465,42 @@ public class Sales_Executive_Master implements GRecord {
         return getVSPTransDetail(fnRow, MiscUtil.getColumnIndex(poTransactions, fsIndex));
     }
     
+    public JSONObject validateExistingSE(){
+        poJSON = new JSONObject();
+        String lsClientID = "";
+        String lsCompnyNm = "";
+        try{
+            if (poModel.getClientID().isEmpty()){
+                poJSON.put("result", "") ;
+                return poJSON;
+            }
+
+            String lsSQL = poModel.getSQL();
+            lsSQL = MiscUtil.addCondition(lsSQL," a.sClientID = " + SQLUtil.toSQL(poModel.getClientID())) ;
+            System.out.println("EXISTING SALES EXECUTIVE: " + lsSQL);
+            ResultSet loRS = poGRider.executeQuery(lsSQL);
+
+            if (MiscUtil.RecordCount(loRS) > 0){
+                while(loRS.next()){
+                        lsClientID = loRS.getString("sClientID");
+                        lsCompnyNm = loRS.getString("sCompnyNm");
+                }
+                
+                poJSON.put("result", "error") ;
+                poJSON.put("message","Found an existing sales executive record for\n" + lsCompnyNm.toUpperCase() + " <Employee ID:" + lsClientID + ">\n\n Do you want to view the record?");
+                poJSON.put("sClientID", lsClientID) ;
+                return poJSON;
+            }
+        
+        
+        } catch (SQLException ex) {
+            Logger.getLogger(Sales_Executive_Master.class.getName()).log(Level.SEVERE, null, ex);    
+        }  catch (NullPointerException e) {
+            // Handle the NullPointerException
+            poJSON.put("result", "") ;
+            System.out.println("Caught a NullPointerException: " + e.getMessage());
+        }
+        
+        return poJSON;
+    }
 }

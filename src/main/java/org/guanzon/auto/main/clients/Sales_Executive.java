@@ -142,7 +142,7 @@ public class Sales_Executive implements GRecord{
         poJSON = new JSONObject();  
         poJSON = poController.searchRecord(fsValue, fbByActive);
         if(!"error".equals(poJSON.get("result"))){
-            poJSON = openRecord((String) poJSON.get("sSerialID"));
+            poJSON = openRecord((String) poJSON.get("sClientID"));
         }
         return poJSON;
     }
@@ -170,6 +170,14 @@ public class Sales_Executive implements GRecord{
     
     public Object getVSPTransDetail(int fnRow, String fsIndex) throws SQLException{
         return poController.getVSPTransDetail(fnRow, fsIndex);
+    }
+    
+    /**
+     * Check Existing Sales Executive Record
+     * @return 
+     */
+    public JSONObject validateExistingSE(){
+        return poController.validateExistingSE();
     }
     
     

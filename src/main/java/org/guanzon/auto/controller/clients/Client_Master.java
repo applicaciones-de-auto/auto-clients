@@ -6,6 +6,12 @@
 package org.guanzon.auto.controller.clients;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.guanzon.appdriver.agent.ShowDialogFX;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
@@ -463,5 +469,92 @@ public class Client_Master implements GRecord{
         return loJSON;
     }
     
+    public JSONObject validateExistingClientInfo(boolean fbIsClient){
+        JSONObject loJSON = new JSONObject();
+        String lsCompnyNm = "";
+        String lsClientID = "";
+        try {
+        String lsSQL = poClient.getSQL();
+            if(fbIsClient){
+                String lsBDate = xsDateShort((Date) poClient.getValue("dBirthDte"));
+                if(lsBDate.equals("1900-01-01") && poClient.getFirstName().trim().isEmpty() && poClient.getLastName().isEmpty()){
+                    loJSON.put("result", "") ;
+                    return loJSON;
+                }
+                
+                if(pnEditMode == EditMode.ADDNEW){
+                    lsSQL = MiscUtil.addCondition(lsSQL, "a.sFrstName = " + SQLUtil.toSQL(poClient.getFirstName())) +
+                                                        " AND a.sLastName = " + SQLUtil.toSQL(poClient.getLastName()) +
+                                                        " AND a.dBirthDte = " + SQLUtil.toSQL(lsBDate) ;
+                } else {
+                    lsSQL = MiscUtil.addCondition(lsSQL, "a.sFrstName = " + SQLUtil.toSQL(poClient.getFirstName())) +
+                                                        " AND a.sLastName = " + SQLUtil.toSQL(poClient.getLastName()) +
+                                                        " AND a.dBirthDte = " + SQLUtil.toSQL(lsBDate) +
+                                                        " AND a.sClientID <> " + SQLUtil.toSQL(poClient.getClientID()) ;
+                }
+                System.out.println("EXISTING CUSTOMER WITH SAME FIRST|LAST NAME AND BIRTHDATE CHECK: " + lsSQL);
+                ResultSet loRS = poGRider.executeQuery(lsSQL);
+
+                if (MiscUtil.RecordCount(loRS) > 0){
+                        while(loRS.next()){
+                            lsCompnyNm = loRS.getString("sCompnyNm");
+                            lsClientID = loRS.getString("sClientID");
+                        }
+                        MiscUtil.close(loRS);
+
+                        loJSON.put("result", "error");
+                        loJSON.put("message","Found an existing customer record for\n" + lsCompnyNm.toUpperCase() + " <Client ID:" + lsClientID + ">\n\n Do you want to view the record?");
+                        loJSON.put("sClientID", lsClientID) ;
+                        return loJSON;
+                }
+                
+            } else {
+                
+                if(poClient.getCompnyNm().trim().isEmpty() && poClient.getTaxIDNo().isEmpty()){
+                    loJSON.put("result", "") ;
+                    return loJSON;
+                }
+                if(pnEditMode == EditMode.ADDNEW){
+                lsSQL = MiscUtil.addCondition(lsSQL, "REPLACE(a.sCompnyNm, ' ','') = " + SQLUtil.toSQL(poClient.getCompnyNm().replace(" ", "")) +
+                                                        " AND a.sTaxIDNox = " + SQLUtil.toSQL(poClient.getTaxIDNo())); 
+                } else {
+                    lsSQL = MiscUtil.addCondition(lsSQL, "REPLACE(a.sCompnyNm, ' ','') = " + SQLUtil.toSQL(poClient.getCompnyNm().replace(" ", "")) +
+                                                        " AND a.sTaxIDNox = " + SQLUtil.toSQL(poClient.getTaxIDNo()) + 
+                                                        " AND a.sClientID <> " + SQLUtil.toSQL(poClient.getClientID())); 
+                }
+                
+                System.out.println("EXISTING COMPANY WITH SAME TIN ID CHECK: " + lsSQL);
+                ResultSet loRS = poGRider.executeQuery(lsSQL);
+
+                if (MiscUtil.RecordCount(loRS) > 0){
+                    while(loRS.next()){
+                            lsCompnyNm = loRS.getString("sCompnyNm");
+                            lsClientID = loRS.getString("sClientID");
+                    }
+                    MiscUtil.close(loRS);        
+                    
+                    loJSON.put("result", "error") ;
+                    loJSON.put("message","Found an existing customer record for\n" + lsCompnyNm.toUpperCase() + " <Client ID:" + lsClientID + ">\n\n Do you want to view the record?");
+                    loJSON.put("sClientID", lsClientID) ;
+                    return loJSON;
+                }
+
+            }
+        
+        } catch (SQLException ex) {
+            Logger.getLogger(Client_Master.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NullPointerException e) {
+            // Handle the NullPointerException
+            loJSON.put("result", "") ;
+            System.out.println("Caught a NullPointerException: " + e.getMessage());
+        }
     
+        return loJSON;
+    }
+    
+    public static String xsDateShort(Date fdValue) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String date = sdf.format(fdValue);
+        return date;
+    }
 }
