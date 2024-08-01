@@ -1,6 +1,6 @@
 
 import org.guanzon.appdriver.base.GRider;
-import org.guanzon.auto.main.clients.Sales_Executive;
+import org.guanzon.auto.main.clients.Sales_Agent;
 import org.json.simple.JSONObject;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertTrue;
@@ -21,13 +21,13 @@ import org.junit.runners.MethodSorters;
  * @author Arsiela
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class SaleExecutiveTest {
+public class SalesAgentTest {
     
-    static Sales_Executive model;
+    static Sales_Agent model;
     JSONObject json;
     boolean result;
     
-    public SaleExecutiveTest(){}
+    public SalesAgentTest(){}
     
     @BeforeClass
     public static void setUpClass() {   
@@ -53,7 +53,7 @@ public class SaleExecutiveTest {
         JSONObject json;
         
         System.out.println("sBranch code = " + instance.getBranchCode());
-        model = new Sales_Executive(instance,false, instance.getBranchCode());
+        model = new Sales_Agent(instance,false, instance.getBranchCode());
     }
     
     @AfterClass
@@ -64,7 +64,7 @@ public class SaleExecutiveTest {
     /**
      * COMMENTED TESTING TO CLEAN AND BUILD PROPERLY
      * WHEN YOU WANT TO CHECK KINDLY UNCOMMENT THE TESTING CASES (@Test).
-     * ARSIELA 07-29-2024
+     * ARSIELA 08-01-2024
      */
     
 //    @Test
@@ -75,7 +75,13 @@ public class SaleExecutiveTest {
 //        
 //        json = model.newRecord();
 //        if ("success".equals((String) json.get("result"))){
-//            json = model.setMaster("sClientID","M001000001");
+//            json = model.setMaster("sClientID","M00124000001");
+//            if ("error".equals((String) json.get("result"))){
+//                System.err.println((String) json.get("message"));
+//                System.exit(1);
+//            }
+//            
+//            json = model.setMaster("sAgentTyp","0");
 //            if ("error".equals((String) json.get("result"))){
 //                System.err.println((String) json.get("message"));
 //                System.exit(1);
@@ -105,29 +111,33 @@ public class SaleExecutiveTest {
 //        }
 //        assertTrue(result);
 //    }
-//    
+    
 //    @Test
 //    public void test02OpenRecord(){
 //        System.out.println("--------------------------------------------------------------------");
 //        System.out.println("------------------------------RETRIEVAL--------------------------------------");
 //        System.out.println("--------------------------------------------------------------------");
 //        
-//        json = model.openRecord("A00118000010");
+//        json = model.openRecord("M00124000001");
 //        
 //        if (!"success".equals((String) json.get("result"))){
 //            result = false;
 //        } else {
 //            System.out.println("--------------------------------------------------------------------");
-//            System.out.println("SALES EXECUTIVE INFORMATION");
+//            System.out.println("SALES AGENT INFORMATION");
 //            System.out.println("--------------------------------------------------------------------");
 //            System.out.println("sClientID  :  " + model.getMaster("sClientID"));
+//            System.out.println("sAgentTyp  :  " + model.getMaster("sAgentTyp"));
 //            System.out.println("cRecdStat  :  " + model.getMaster("cRecdStat"));
+//            System.out.println("sModified  :  " + model.getMaster("sModified"));
+//            System.out.println("dModified  :  " + model.getMaster("dModified"));
 //            System.out.println("sLastName  :  " + model.getMaster("sLastName"));
 //            System.out.println("sFrstName  :  " + model.getMaster("sFrstName"));
 //            System.out.println("sMiddName  :  " + model.getMaster("sMiddName"));
 //            System.out.println("sCompnyNm  :  " + model.getMaster("sCompnyNm"));
 //            System.out.println("cClientTp  :  " + model.getMaster("cClientTp"));
 //            System.out.println("sMobileNo  :  " + model.getMaster("sMobileNo"));
+//            System.out.println("sAccountx  :  " + model.getMaster("sAccountx"));
 //            System.out.println("sEmailAdd  :  " + model.getMaster("sEmailAdd"));
 //            System.out.println("sAddressx  :  " + model.getMaster("sAddressx"));
 //            
@@ -135,22 +145,26 @@ public class SaleExecutiveTest {
 //        }
 //        assertTrue(result);
 //    }
-//        
+    
 //    @Test
-//    public void test04DeactivateRecord(){
+//    public void test03UpdateRecord(){
 //        System.out.println("--------------------------------------------------------------------");
-//        System.out.println("------------------------------DEACTIVATE RECORD--------------------------------------");
+//        System.out.println("------------------------------UPDATE RECORD--------------------------------------");
 //        System.out.println("--------------------------------------------------------------------");
 //        
-//        json = model.deactivateRecord("A00118000010");
+//        json = model.updateRecord();
 //        System.err.println((String) json.get("message"));
-//        
-//        if (!"success".equals((String) json.get("result"))){
+//        if ("error".equals((String) json.get("result"))){
 //            System.err.println((String) json.get("message"));
 //            result = false;
 //        } else {
-//            System.out.println((String) json.get("message"));
 //            result = true;
+//        }
+//        
+//        json = model.setMaster("sAgentTyp","reg");
+//        if ("error".equals((String) json.get("result"))){
+//            System.err.println((String) json.get("message"));
+//            System.exit(1);
 //        }
 //        
 //        assertTrue(result);
@@ -158,12 +172,33 @@ public class SaleExecutiveTest {
 //    }
 //    
 //    @Test
-//    public void test05ActivateRecord(){
+//    public void test03UpdateRecordSave(){
 //        System.out.println("--------------------------------------------------------------------");
-//        System.out.println("------------------------------ACTIVATE RECORD--------------------------------------");
+//        System.out.println("------------------------------UPDATE RECORD SAVING--------------------------------------");
 //        System.out.println("--------------------------------------------------------------------");
 //        
-//        json = model.activateRecord("A00118000010");
+//        json = model.saveRecord();
+//        System.err.println((String) json.get("message"));
+//        
+//        if (!"success".equals((String) json.get("result"))){
+//            System.err.println((String) json.get("message"));
+//            result = false;
+//        } else {
+//            System.out.println((String) json.get("message"));
+//            result = true;
+//        }
+//        assertTrue(result);
+//        //assertFalse(result);
+//    }
+    
+        
+//    @Test
+//    public void test04DeactivateRecord(){
+//        System.out.println("--------------------------------------------------------------------");
+//        System.out.println("------------------------------DEACTIVATE RECORD--------------------------------------");
+//        System.out.println("--------------------------------------------------------------------");
+//        
+//        json = model.deactivateRecord("M00124000001");
 //        System.err.println((String) json.get("message"));
 //        
 //        if (!"success".equals((String) json.get("result"))){
@@ -177,5 +212,27 @@ public class SaleExecutiveTest {
 //        assertTrue(result);
 //        //assertFalse(result);
 //    }
+    
+//    @Test
+//    public void test05ActivateRecord(){
+//        System.out.println("--------------------------------------------------------------------");
+//        System.out.println("------------------------------ACTIVATE RECORD--------------------------------------");
+//        System.out.println("--------------------------------------------------------------------");
+//        
+//        json = model.activateRecord("M00124000001");
+//        System.err.println((String) json.get("message"));
+//        
+//        if (!"success".equals((String) json.get("result"))){
+//            System.err.println((String) json.get("message"));
+//            result = false;
+//        } else {
+//            System.out.println((String) json.get("message"));
+//            result = true;
+//        }
+//        
+//        assertTrue(result);
+//        //assertFalse(result);
+//    }
+    
     
 }

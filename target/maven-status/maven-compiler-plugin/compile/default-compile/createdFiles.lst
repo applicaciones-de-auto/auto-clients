@@ -12,6 +12,7 @@ org\guanzon\auto\controller\clients\Client_Social_Media.class
 org\guanzon\auto\resultSet2XML\clients\ClientEmail.class
 org\guanzon\auto\controller\clients\Client_Email.class
 org\guanzon\auto\resultSet2XML\clients\ClientSocialMedia.class
+org\guanzon\auto\resultSet2XML\clients\SalesAgent.class
 org\guanzon\auto\main\clients\Sales_Agent.class
 org\guanzon\auto\controller\clients\Vehicle_Registration.class
 org\guanzon\auto\resultSet2XML\clients\ClientMobile.class

@@ -171,17 +171,17 @@ public class Sales_Agent_Master  implements GRecord {
                 CancelForm cancelform = new CancelForm();
                 if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(), "REFERRAL AGENT")) {
                     poJSON.put("result", "error");
-                    poJSON.put("message", "Deactivation failed.");
+                    poJSON.put("message", "Disapprove failed.");
                     return poJSON;
                 }
                 
                 poJSON = poModel.saveRecord();
                 if ("success".equals((String) poJSON.get("result"))) {
                     poJSON.put("result", "success");
-                    poJSON.put("message", "Deactivation success.");
+                    poJSON.put("message", "Disapprove success.");
                 } else {
                     poJSON.put("result", "error");
-                    poJSON.put("message", "Deactivation failed.");
+                    poJSON.put("message", "Disapprove failed.");
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(Sales_Agent_Master.class.getName()).log(Level.SEVERE, null, ex);
@@ -207,10 +207,10 @@ public class Sales_Agent_Master  implements GRecord {
             poJSON = poModel.saveRecord();
             if ("success".equals((String) poJSON.get("result"))) {
                 poJSON.put("result", "success");
-                poJSON.put("message", "Activation success.");
+                poJSON.put("message", "Approve success.");
             } else {
                 poJSON.put("result", "error");
-                poJSON.put("message", "Activation failed.");
+                poJSON.put("message", "Approve failed.");
             }
         } else {
             poJSON = new JSONObject();
