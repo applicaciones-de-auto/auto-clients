@@ -493,4 +493,13 @@ public class Client implements GRecord{
     public JSONObject searchBirthPlc(String fsValue){
         return poClient.searchBirthPlc(fsValue);
     }
+    
+    /**
+     * Check Existing Client Record
+     * @param fbIsClient set TRUE when client type is Client else FALSE when Company
+     * @return 
+     */
+    public JSONObject validateExistingClientInfo(boolean fbIsClient){
+        return poClient.validateExistingClientInfo(fbIsClient);
+    }
 }
