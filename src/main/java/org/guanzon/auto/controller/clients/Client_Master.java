@@ -337,9 +337,9 @@ public class Client_Master implements GRecord{
                             " LEFT JOIN TownCity d ON bb.sTownIDxx = d.sTownIDxx" + 
                             " LEFT JOIN Province e ON d.sProvIDxx = e.sProvIDxx";
         if (fbByCode) {
-            lsSQL = MiscUtil.addCondition(lsSQL, "a.cClientTp = '0' AND a.sClientID LIKE " + SQLUtil.toSQL(fsValue + "%"));
+            lsSQL = MiscUtil.addCondition(lsSQL, " a.cRecdStat = '1' AND a.cClientTp = '0' AND a.sClientID LIKE " + SQLUtil.toSQL(fsValue + "%"));
         } else {
-            lsSQL = MiscUtil.addCondition(lsSQL, "a.cClientTp = '0' AND a.sCompnyNm LIKE " + SQLUtil.toSQL("%" + fsValue + "%"));
+            lsSQL = MiscUtil.addCondition(lsSQL, " a.cRecdStat = '1' AND a.cClientTp = '0' AND a.sCompnyNm LIKE " + SQLUtil.toSQL("%" + fsValue + "%"));
         }
         
         JSONObject loJSON;
