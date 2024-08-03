@@ -207,7 +207,7 @@ public class Client_Address {
             //System.out.println("removeAddress Addresses Size : " + poAddresses.getAddressesList().size());
         } else {
             loJSON.put("result", "error");
-            loJSON.put("message", "You cannot remove Client Address that already saved, Deactivate it instead.");
+            loJSON.put("message", "You cannot remove Address that already saved, Deactivate it instead.");
             return loJSON;
         }
         return loJSON;
@@ -341,7 +341,7 @@ public class Client_Address {
 
                     if(!fsValue.equals(lsConcatAddresses)){
                         obj.put("result", "confirm");
-                        obj.put("message", "Existing Customer with the same Address Information found. You want to update Address?");
+                        obj.put("message", "Existing record with the same Address Information found. You want to update Address?");
                         return obj;
                     }
                 }

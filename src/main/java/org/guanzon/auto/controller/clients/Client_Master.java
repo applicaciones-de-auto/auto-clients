@@ -271,17 +271,12 @@ public class Client_Master implements GRecord{
                             ", a.sSuffixNm" + 
                             ", a.cClientTp" + 
                             ", CASE WHEN a.cClientTp = '0' THEN 'CLIENT' ELSE 'COMPANY' END AS sClientTp " +  
-                        " FROM Client_Master a" + 
-                            " LEFT JOIN Client_Address b" + 
-                                " ON a.sClientID = b.sClientID AND b.cPrimaryx = '1'" + 
-                            " LEFT JOIN Addresses bb" + 
-                                " ON bb.sAddrssID = b.sAddrssID" + 
-                            " LEFT JOIN barangay c " + 
-                                "ON c.sBrgyIDxx = bb.sBrgyIDxx " +
-                            " LEFT JOIN TownCity d" + 
-                                " ON bb.sTownIDxx = d.sTownIDxx" + 
-                            " LEFT JOIN Province e" +
-                                " ON d.sProvIDxx = e.sProvIDxx";
+                            " FROM Client_Master a" + 
+                            " LEFT JOIN Client_Address b ON a.sClientID = b.sClientID AND b.cPrimaryx = '1'" + 
+                            " LEFT JOIN Addresses bb ON bb.sAddrssID = b.sAddrssID" + 
+                            " LEFT JOIN barangay c ON c.sBrgyIDxx = bb.sBrgyIDxx " +
+                            " LEFT JOIN TownCity d ON bb.sTownIDxx = d.sTownIDxx" + 
+                            " LEFT JOIN Province e ON d.sProvIDxx = e.sProvIDxx";
 //        if (fbByCode) {
 //            lsSQL = MiscUtil.addCondition(lsSQL, "a.sClientID = " + SQLUtil.toSQL(fsValue));
 //        } else {
@@ -315,7 +310,53 @@ public class Client_Master implements GRecord{
         }else {
             loJSON  = new JSONObject();  
             loJSON.put("result", "error");
-            loJSON.put("message", "No client information found");
+            loJSON.put("message", "No information found");
+            return loJSON;
+        }
+        
+        return loJSON;
+    }
+    
+    public JSONObject searchClient(String fsValue, boolean fbByCode) {
+        String lsHeader = "ID»Name»Address"; // »Client Type
+        String lsColName = "sClientID»sCompnyNm»xAddressx"; //"sClientID»sCompnyNm»xAddressx»sLastName»sFrstName»sMiddName»sSuffixNm»sClientTp
+        String lsColCrit = "a.sClientID»a.sCompnyNm»CONCAT(bb.sHouseNox, ' ', bb.sAddressx, ', ', c.sTownName, ' ', d.sProvName)";
+        String lsSQL = "SELECT " +
+                            "  a.sClientID" +
+                            ", UPPER(a.sCompnyNm) sCompnyNm" +
+                            ", UPPER(CONCAT(bb.sHouseNox, ' ', bb.sAddressx,' ', c.sBrgyName, ', ', d.sTownName, ' ', e.sProvName)) xAddressx" +
+                            ", a.sLastName" + 
+                            ", a.sFrstName" + 
+                            ", a.sMiddName" + 
+                            ", a.sSuffixNm" + 
+                            ", a.cClientTp" +  
+                            " FROM Client_Master a" + 
+                            " LEFT JOIN Client_Address b ON a.sClientID = b.sClientID AND b.cPrimaryx = '1'" + 
+                            " LEFT JOIN Addresses bb ON bb.sAddrssID = b.sAddrssID" + 
+                            " LEFT JOIN barangay c ON c.sBrgyIDxx = bb.sBrgyIDxx " +
+                            " LEFT JOIN TownCity d ON bb.sTownIDxx = d.sTownIDxx" + 
+                            " LEFT JOIN Province e ON d.sProvIDxx = e.sProvIDxx";
+        if (fbByCode) {
+            lsSQL = MiscUtil.addCondition(lsSQL, " a.cRecdStat = '1' AND a.cClientTp = '0' AND a.sClientID LIKE " + SQLUtil.toSQL(fsValue + "%"));
+        } else {
+            lsSQL = MiscUtil.addCondition(lsSQL, " a.cRecdStat = '1' AND a.cClientTp = '0' AND a.sCompnyNm LIKE " + SQLUtil.toSQL("%" + fsValue + "%"));
+        }
+        
+        JSONObject loJSON;
+        System.out.println(lsSQL);
+        loJSON = ShowDialogFX.Search(poGRider, 
+                                        lsSQL, 
+                                        fsValue, 
+                                        lsHeader, 
+                                        lsColName, 
+                                        lsColCrit, 
+                                        fbByCode ? 0 :1);
+        
+        if (loJSON != null) {
+        }else {
+            loJSON  = new JSONObject();  
+            loJSON.put("result", "error");
+            loJSON.put("message", "No information found");
             return loJSON;
         }
         
@@ -503,7 +544,7 @@ public class Client_Master implements GRecord{
                         MiscUtil.close(loRS);
 
                         loJSON.put("result", "error");
-                        loJSON.put("message","Found an existing customer record for\n" + lsCompnyNm.toUpperCase() + " <Client ID:" + lsClientID + ">\n\n Do you want to view the record?");
+                        loJSON.put("message","Found an existing record for\n" + lsCompnyNm.toUpperCase() + " <ID: " + lsClientID + ">\n\n Do you want to view the record?");
                         loJSON.put("sClientID", lsClientID) ;
                         return loJSON;
                 }
@@ -534,7 +575,7 @@ public class Client_Master implements GRecord{
                     MiscUtil.close(loRS);        
                     
                     loJSON.put("result", "error") ;
-                    loJSON.put("message","Found an existing customer record for\n" + lsCompnyNm.toUpperCase() + " <Client ID:" + lsClientID + ">\n\n Do you want to view the record?");
+                    loJSON.put("message","Found an existing record for\n" + lsCompnyNm.toUpperCase() + " <ID:" + lsClientID + ">\n\n Do you want to view the record?");
                     loJSON.put("sClientID", lsClientID) ;
                     return loJSON;
                 }

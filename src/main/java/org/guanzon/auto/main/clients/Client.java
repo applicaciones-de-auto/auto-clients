@@ -216,7 +216,7 @@ public class Client implements GRecord{
         //VALIDATE : Client Address
         if(poAddress.getAddressList() == null){
             obj.put("result", "error");
-            obj.put("message", "No client address detected. Please encode client address.");
+            obj.put("message", "No address detected. Please encode client address.");
             return obj;
         }
         
@@ -224,7 +224,7 @@ public class Client implements GRecord{
         //Save Client Address
         if (lnSize < 0){
             obj.put("result", "error");
-            obj.put("message", "No client address detected. Please encode client address.");
+            obj.put("message", "No address detected. Please encode client address.");
             return obj;
         }
         
@@ -246,14 +246,14 @@ public class Client implements GRecord{
         
         if(poMobile.getMobileList()== null){
             obj.put("result", "error");
-            obj.put("message", "No mobile number detected. Please encode client mobile number.");
+            obj.put("message", "No mobile number detected. Please encode mobile number.");
             return obj;
         }
         
         lnSize = poMobile.getMobileList().size() -1;
         if (lnSize < 0){
             obj.put("result", "error");
-            obj.put("message", "No mobile number detected. Please encode client mobile number.");
+            obj.put("message", "No mobile number detected. Please encode mobile number.");
             return obj;
         }
         
@@ -297,7 +297,7 @@ public class Client implements GRecord{
 
                         MiscUtil.close(loRS);
                         obj.put("result", "error");
-                        obj.put("message", "Existing Contact Number with Customer Record.\n\nClient ID: " + lsClientID + "\nName: " + lsCompnyNm.toUpperCase() );
+                        obj.put("message", "Existing Contact Number Record for.\n\nID: " + lsClientID + "\nName: " + lsCompnyNm.toUpperCase() );
                         return obj;
                 }
             }
@@ -329,6 +329,19 @@ public class Client implements GRecord{
         poJSON = poClient.searchRecord(fsValue, fbByCode);
         if(!"error".equals(poJSON.get("result"))){
             poJSON = openRecord((String) poJSON.get("sClientID"));
+        }
+        return poJSON;
+    }
+
+    public JSONObject searchClient(String fsValue, boolean fbByCode) {
+        poJSON = new JSONObject();  
+        poJSON = poClient.searchClient(fsValue, fbByCode);
+        if(!"error".equals(poJSON.get("result"))){
+            poJSON = openRecord((String) poJSON.get("sClientID"));
+            if(!"error".equals(poJSON.get("result"))){
+                poJSON = updateRecord();
+            }
+            
         }
         return poJSON;
     }

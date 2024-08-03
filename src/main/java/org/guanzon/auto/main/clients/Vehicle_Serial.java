@@ -277,6 +277,14 @@ public class Vehicle_Serial implements GRecord{
         
     }
     
+    /**
+     * Check Existing Vehicle Serial Record
+     * @return 
+     */
+    public JSONObject validateExistingRecord(){
+        return poController.validateExistingRecord();
+    }
+    
     /*Client Information*/
     private JSONObject checkData(JSONObject joValue){
         if(pnEditMode == EditMode.ADDNEW || pnEditMode == EditMode.READY || pnEditMode == EditMode.UPDATE){
