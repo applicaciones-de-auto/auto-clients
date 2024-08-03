@@ -398,7 +398,7 @@ public class Sales_Agent_Master  implements GRecord {
                 }
                 
                 poJSON.put("result", "error") ;
-                poJSON.put("message","Found an existing referral agent record for\n" + lsCompnyNm.toUpperCase() + " <Agent ID:" + lsClientID + ">\n\n Do you want to view the record?");
+                poJSON.put("message","Found an existing referral agent record for\n" + lsCompnyNm.toUpperCase() + " <Agent ID: " + lsClientID + ">\n\n Do you want to view the record?");
                 poJSON.put("sClientID", lsClientID) ;
                 return poJSON;
             }

@@ -216,7 +216,7 @@ public class Client implements GRecord{
         //VALIDATE : Client Address
         if(poAddress.getAddressList() == null){
             obj.put("result", "error");
-            obj.put("message", "No client address detected. Please encode client address.");
+            obj.put("message", "No address detected. Please encode client address.");
             return obj;
         }
         
@@ -224,7 +224,7 @@ public class Client implements GRecord{
         //Save Client Address
         if (lnSize < 0){
             obj.put("result", "error");
-            obj.put("message", "No client address detected. Please encode client address.");
+            obj.put("message", "No address detected. Please encode client address.");
             return obj;
         }
         
@@ -246,14 +246,14 @@ public class Client implements GRecord{
         
         if(poMobile.getMobileList()== null){
             obj.put("result", "error");
-            obj.put("message", "No mobile number detected. Please encode client mobile number.");
+            obj.put("message", "No mobile number detected. Please encode mobile number.");
             return obj;
         }
         
         lnSize = poMobile.getMobileList().size() -1;
         if (lnSize < 0){
             obj.put("result", "error");
-            obj.put("message", "No mobile number detected. Please encode client mobile number.");
+            obj.put("message", "No mobile number detected. Please encode mobile number.");
             return obj;
         }
         

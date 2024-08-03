@@ -544,7 +544,7 @@ public class Client_Master implements GRecord{
                         MiscUtil.close(loRS);
 
                         loJSON.put("result", "error");
-                        loJSON.put("message","Found an existing record for\n" + lsCompnyNm.toUpperCase() + " <ID:" + lsClientID + ">\n\n Do you want to view the record?");
+                        loJSON.put("message","Found an existing record for\n" + lsCompnyNm.toUpperCase() + " <ID: " + lsClientID + ">\n\n Do you want to view the record?");
                         loJSON.put("sClientID", lsClientID) ;
                         return loJSON;
                 }
