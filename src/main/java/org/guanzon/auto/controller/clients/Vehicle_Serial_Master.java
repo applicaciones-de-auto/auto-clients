@@ -1326,9 +1326,9 @@ public class Vehicle_Serial_Master implements GRecord {
             lsDesc = "";
             lsWhere = "";
             if(pnEditMode == EditMode.ADDNEW){
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()));
+                lsWhere = MiscUtil.addCondition(lsSQL, " b.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()));
             } else {
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()) 
+                lsWhere = MiscUtil.addCondition(lsSQL, " b.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()) 
                                                     + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
             }
             System.out.println("EXISTING VEHICLE SERIAL PLATE NO CHECK: " + lsWhere);
