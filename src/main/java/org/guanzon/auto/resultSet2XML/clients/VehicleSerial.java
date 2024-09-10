@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
+import org.guanzon.appdriver.base.SQLUtil;
+import org.guanzon.appdriver.constant.TransactionStatus;
 
 /**
  *
@@ -91,7 +93,7 @@ public class VehicleSerial {
                         + " ELSE '' "              
                         + " END AS sVhclStat " //39         
                         + " , r.sReferNox AS sUdrNoxxx" //40         
-                        + " , r.dTransact AS sUdrDatex" //41         
+                        + " , DATE(r.dTransact) AS sUdrDatex" //41         
                         + " , s.sCompnyNm AS sBuyerNmx " //42         
                         + "FROM vehicle_serial a "              
                         + "LEFT JOIN vehicle_serial_registration b ON a.sSerialID = b.sSerialID "              
@@ -115,7 +117,7 @@ public class VehicleSerial {
                         + "LEFT JOIN barangay       p ON p.sBrgyIDxx = nn.sBrgyIDxx AND p.sTownIDxx = nn.sTownIDxx "              
                         + "LEFT JOIN Province       q ON q.sProvIDxx = o.sProvIDxx "              
                          /* UDR INFO */                                                                                                  
-                        + "LEFT JOIN udr_master     r ON r.sSerialID = a.sSerialID AND r.sClientID = a.sClientID AND r.cTranStat = '1' "
+                        + "LEFT JOIN udr_master     r ON r.sSerialID = a.sSerialID AND r.sClientID = a.sClientID AND r.cTranStat <> " + SQLUtil.toSQL(TransactionStatus.STATE_CANCELLED)
                         + "LEFT JOIN client_master  s ON s.sClientID = r.sClientID "
                         + " WHERE 0=1";
         
