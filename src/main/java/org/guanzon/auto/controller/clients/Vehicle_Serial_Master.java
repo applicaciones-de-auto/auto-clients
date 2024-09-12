@@ -1298,115 +1298,129 @@ public class Vehicle_Serial_Master implements GRecord {
                         + " LEFT JOIN vehicle_master c ON c.sVhclIDxx = a.sVhclIDxx "  ;
         
         try {
-            
-            if(pnEditMode == EditMode.ADDNEW){
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sCSNoxxxx = " + SQLUtil.toSQL(poModel.getCSNo()));
-            } else {
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sCSNoxxxx = " + SQLUtil.toSQL(poModel.getCSNo()) 
-                                                    + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
-            }
-            System.out.println("EXISTING VEHICLE SERIAL CS NO CHECK: " + lsWhere);
-            loRS = poGRider.executeQuery(lsWhere);
-
-            if (MiscUtil.RecordCount(loRS) > 0){
-                    while(loRS.next()){
-                        lsID = loRS.getString("sSerialID");
-                        lsDesc = loRS.getString("sDescript");
+            if(poModel.getCSNo() != null){
+                if(!poModel.getCSNo().trim().isEmpty()){
+                    if(pnEditMode == EditMode.ADDNEW){
+                        lsWhere = MiscUtil.addCondition(lsSQL, " a.sCSNoxxxx = " + SQLUtil.toSQL(poModel.getCSNo()));
+                    } else {
+                        lsWhere = MiscUtil.addCondition(lsSQL, " a.sCSNoxxxx = " + SQLUtil.toSQL(poModel.getCSNo()) 
+                                                            + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
                     }
+                    System.out.println("EXISTING VEHICLE SERIAL CS NO CHECK: " + lsWhere);
+                    loRS = poGRider.executeQuery(lsWhere);
 
-                    MiscUtil.close(loRS);
-                    
-                    poJSON.put("result", "error") ;
-                    poJSON.put("message","Found an existing Vehicle Serial record for\nCS NO : " +poModel.getCSNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
-                    poJSON.put("sSerialID", lsID) ;
-                    return poJSON;
-            }
-            
-            lsID = "";
-            lsDesc = "";
-            lsWhere = "";
-            if(pnEditMode == EditMode.ADDNEW){
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()));
-            } else {
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()) 
-                                                    + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
-            }
-            System.out.println("EXISTING VEHICLE SERIAL PLATE NO CHECK: " + lsWhere);
-            loRS = poGRider.executeQuery(lsWhere);
+                    if (MiscUtil.RecordCount(loRS) > 0){
+                            while(loRS.next()){
+                                lsID = loRS.getString("sSerialID");
+                                lsDesc = loRS.getString("sDescript");
+                            }
 
-            if (MiscUtil.RecordCount(loRS) > 0){
-                    while(loRS.next()){
-                        lsID = loRS.getString("sSerialID");
-                        lsDesc = loRS.getString("sDescript");
+                            MiscUtil.close(loRS);
+
+                            poJSON.put("result", "error") ;
+                            poJSON.put("message","Found an existing Vehicle Serial record for\nCS NO : " +poModel.getCSNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
+                            poJSON.put("sSerialID", lsID) ;
+                            return poJSON;
                     }
-
-                    MiscUtil.close(loRS);
-                    
-                    poJSON.put("result", "error") ;
-                    poJSON.put("message","Found an existing Vehicle Serial record for\nPLATE NO: " +poModel.getPlateNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
-                    poJSON.put("sSerialID", lsID) ;
-                    return poJSON;
+                }
             }
             
             lsID = "";
             lsDesc = "";
             lsWhere = "";
-
-            if(pnEditMode == EditMode.ADDNEW){
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sFrameNox = " + SQLUtil.toSQL(poModel.getFrameNo()));
-            } else {
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sFrameNox = " + SQLUtil.toSQL(poModel.getFrameNo()) 
-                                                    + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
-            }
-            System.out.println("EXISTING VEHICLE SERIAL FRAME NO CHECK: " + lsWhere);
-            loRS = poGRider.executeQuery(lsWhere);
-
-            if (MiscUtil.RecordCount(loRS) > 0){
-                    while(loRS.next()){
-                        lsID = loRS.getString("sSerialID");
-                        lsDesc = loRS.getString("sFrameNox");
+            if(poModel.getPlateNo() != null){
+                if(!poModel.getPlateNo().trim().isEmpty()){
+                    if(pnEditMode == EditMode.ADDNEW){
+                        lsWhere = MiscUtil.addCondition(lsSQL, " b.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()));
+                    } else {
+                        lsWhere = MiscUtil.addCondition(lsSQL, " b.sPlateNox = " + SQLUtil.toSQL(poModel.getPlateNo()) 
+                                                            + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
                     }
+                    System.out.println("EXISTING VEHICLE SERIAL PLATE NO CHECK: " + lsWhere);
+                    loRS = poGRider.executeQuery(lsWhere);
 
-                    MiscUtil.close(loRS);
-                    
-                    poJSON.put("result", "error") ;
-                    poJSON.put("message","Found an existing Vehicle Serial record for\nFRAME NO : " +poModel.getFrameNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
-                    poJSON.put("sSerialID", lsID) ;
-                    return poJSON;
+                    if (MiscUtil.RecordCount(loRS) > 0){
+                            while(loRS.next()){
+                                lsID = loRS.getString("sSerialID");
+                                lsDesc = loRS.getString("sDescript");
+                            }
+
+                            MiscUtil.close(loRS);
+
+                            poJSON.put("result", "error") ;
+                            poJSON.put("message","Found an existing Vehicle Serial record for\nPLATE NO: " +poModel.getPlateNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
+                            poJSON.put("sSerialID", lsID) ;
+                            return poJSON;
+                    }
+                }
+            }
+            
+            lsID = "";
+            lsDesc = "";
+            lsWhere = "";
+
+            if(poModel.getFrameNo() != null){
+                if(!poModel.getFrameNo().trim().isEmpty()){
+                    if(pnEditMode == EditMode.ADDNEW){
+                        lsWhere = MiscUtil.addCondition(lsSQL, " a.sFrameNox = " + SQLUtil.toSQL(poModel.getFrameNo()));
+                    } else {
+                        lsWhere = MiscUtil.addCondition(lsSQL, " a.sFrameNox = " + SQLUtil.toSQL(poModel.getFrameNo()) 
+                                                            + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
+                    }
+                    System.out.println("EXISTING VEHICLE SERIAL FRAME NO CHECK: " + lsWhere);
+                    loRS = poGRider.executeQuery(lsWhere);
+
+                    if (MiscUtil.RecordCount(loRS) > 0){
+                            while(loRS.next()){
+                                lsID = loRS.getString("sSerialID");
+                                lsDesc = loRS.getString("sFrameNox");
+                            }
+
+                            MiscUtil.close(loRS);
+
+                            poJSON.put("result", "error") ;
+                            poJSON.put("message","Found an existing Vehicle Serial record for\nFRAME NO : " +poModel.getFrameNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
+                            poJSON.put("sSerialID", lsID) ;
+                            return poJSON;
+                    }
+                }
             }
             
             lsID = "";
             lsDesc  = "";
             lsWhere = "";
 
-            if(pnEditMode == EditMode.ADDNEW){
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sEngineNo = " + SQLUtil.toSQL(poModel.getEngineNo()));
-            } else {
-                lsWhere = MiscUtil.addCondition(lsSQL, " a.sEngineNo = " + SQLUtil.toSQL(poModel.getEngineNo()) 
-                                                    + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
-            }
-            System.out.println("EXISTING VEHICLE SERIAL ENGINE NO CHECK: " + lsWhere);
-            loRS = poGRider.executeQuery(lsWhere);
-
-            if (MiscUtil.RecordCount(loRS) > 0){
-                    while(loRS.next()){
-                        lsID = loRS.getString("sSerialID");
-                        lsDesc = loRS.getString("sEngineNo");
+            if(poModel.getEngineNo() != null){
+                if(!poModel.getEngineNo().trim().isEmpty()){
+                    if(pnEditMode == EditMode.ADDNEW){
+                        lsWhere = MiscUtil.addCondition(lsSQL, " a.sEngineNo = " + SQLUtil.toSQL(poModel.getEngineNo()));
+                    } else {
+                        lsWhere = MiscUtil.addCondition(lsSQL, " a.sEngineNo = " + SQLUtil.toSQL(poModel.getEngineNo()) 
+                                                            + " AND a.sSerialID <> " + SQLUtil.toSQL(poModel.getSerialID()));
                     }
+                    System.out.println("EXISTING VEHICLE SERIAL ENGINE NO CHECK: " + lsWhere);
+                    loRS = poGRider.executeQuery(lsWhere);
 
-                    MiscUtil.close(loRS);
-                    
-                    poJSON.put("result", "error") ;
-                    poJSON.put("message","Found an existing Vehicle Serial record for\nENGINE NO : " +poModel.getEngineNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
-                    poJSON.put("sSerialID", lsID) ;
-                    return poJSON;
+                    if (MiscUtil.RecordCount(loRS) > 0){
+                            while(loRS.next()){
+                                lsID = loRS.getString("sSerialID");
+                                lsDesc = loRS.getString("sEngineNo");
+                            }
+
+                            MiscUtil.close(loRS);
+
+                            poJSON.put("result", "error") ;
+                            poJSON.put("message","Found an existing Vehicle Serial record for\nENGINE NO : " +poModel.getEngineNo()+ "\n" + lsDesc.toUpperCase() + " <Serial ID:" + lsID + ">\n\n Do you want to view the record?");
+                            poJSON.put("sSerialID", lsID) ;
+                            return poJSON;
+                    }
+                }
             }
-        
         } catch (SQLException ex) {
             Logger.getLogger(Vehicle_Serial_Master.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NullPointerException e) {
             // Handle the NullPointerException
-            poJSON.put("result", "") ;
+            poJSON.put("result", "error") ;
             System.out.println("Caught a NullPointerException: " + e.getMessage());
         }
         
