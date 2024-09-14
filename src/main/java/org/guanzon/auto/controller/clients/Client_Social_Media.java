@@ -31,7 +31,7 @@ public class Client_Social_Media {
     String psMessagex;
     public JSONObject poJSON;
     
-    ArrayList<Model_Client_Social_Media> paSocMed;
+    ArrayList<Model_Client_Social_Media> paDetail;
     
     public Client_Social_Media(GRider foAppDrver){
         poGRider = foAppDrver;
@@ -41,36 +41,36 @@ public class Client_Social_Media {
         return pnEditMode;
     }
     
-    public Model_Client_Social_Media getSocial(int fnIndex){
-        if (fnIndex > paSocMed.size() - 1 || fnIndex < 0) return null;
+    public Model_Client_Social_Media getDetailModel(int fnIndex){
+        if (fnIndex > paDetail.size() - 1 || fnIndex < 0) return null;
         
-        return paSocMed.get(fnIndex);
+        return paDetail.get(fnIndex);
     }
     
     public JSONObject addSocialMedia(String fsClientID){
         
-        if(paSocMed == null){
-            paSocMed = new ArrayList<>();
+        if(paDetail == null){
+            paDetail = new ArrayList<>();
         }
         
         poJSON = new JSONObject();
-        if (paSocMed.isEmpty()){
-            paSocMed.add(new Model_Client_Social_Media(poGRider));
-            paSocMed.get(0).newRecord();
-            paSocMed.get(0).setClientID(fsClientID);
+        if (paDetail.isEmpty()){
+            paDetail.add(new Model_Client_Social_Media(poGRider));
+            paDetail.get(0).newRecord();
+            paDetail.get(0).setClientID(fsClientID);
             poJSON.put("result", "success");
             poJSON.put("message", "Social media add record.");
         } else {
-            ValidatorInterface validator = ValidatorFactory.make(  ValidatorFactory.TYPE.Client_Social_Media, paSocMed.get(paSocMed.size()-1));
+            ValidatorInterface validator = ValidatorFactory.make(  ValidatorFactory.TYPE.Client_Social_Media, paDetail.get(paDetail.size()-1));
             validator.setGRider(poGRider);
             if (!validator.isEntryOkay()){
                 poJSON.put("result", "error");
                 poJSON.put("message", validator.getMessage());
                 return poJSON;
             }
-            paSocMed.add(new Model_Client_Social_Media( poGRider));
-            paSocMed.get(paSocMed.size()-1).newRecord();
-            paSocMed.get(paSocMed.size()-1).setClientID(fsClientID);
+            paDetail.add(new Model_Client_Social_Media( poGRider));
+            paDetail.get(paDetail.size()-1).newRecord();
+            paDetail.get(paDetail.size()-1).setClientID(fsClientID);
             poJSON.put("result", "success");
             poJSON.put("message", "Social media add record.");
         }
@@ -78,7 +78,7 @@ public class Client_Social_Media {
     }
     
     public JSONObject OpenClientSocialAccount(String fsValue){
-        paSocMed = new ArrayList<>();
+        paDetail = new ArrayList<>();
         poJSON = new JSONObject();
         String lsSQL = "SELECT" +
                     "  sSocialID" +
@@ -91,10 +91,10 @@ public class Client_Social_Media {
        try {
             int lnctr = 0;
             if (MiscUtil.RecordCount(loRS) > 0) {
-                paSocMed = new ArrayList<>();
+                paDetail = new ArrayList<>();
                 while(loRS.next()){
-                        paSocMed.add(new Model_Client_Social_Media(poGRider));
-                        paSocMed.get(paSocMed.size() - 1).openRecord(loRS.getString("sSocialID"));
+                        paDetail.add(new Model_Client_Social_Media(poGRider));
+                        paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sSocialID"));
                         
                         pnEditMode = EditMode.UPDATE;
                         lnctr++;
@@ -104,7 +104,7 @@ public class Client_Social_Media {
                 
                 //System.out.println("lnctr = " + lnctr);
             }else{
-//                paSocMed = new ArrayList<>();
+//                paDetail = new ArrayList<>();
 //                addSocialMedia(fsValue);
                 poJSON.put("result", "error");
                 poJSON.put("continue", true);
@@ -121,13 +121,13 @@ public class Client_Social_Media {
     public JSONObject saveSocialAccount (String fsClientID){
         JSONObject obj = new JSONObject();
         
-        if(paSocMed == null){
+        if(paDetail == null){
             obj.put("result", "error");
             obj.put("continue", true);
             return obj;
         }
         
-        int lnSize = paSocMed.size() -1;
+        int lnSize = paDetail.size() -1;
         if(lnSize < 0){
             obj.put("result", "error");
             obj.put("continue", true);
@@ -135,41 +135,46 @@ public class Client_Social_Media {
         }
 
         int lnCtr;
-        String lsSQL;
-        
         for (lnCtr = 0; lnCtr <= lnSize; lnCtr++){
-            paSocMed.get(lnCtr).setClientID(fsClientID);
+            
             if(lnCtr>0){
-                if(paSocMed.get(lnCtr).getAccount().isEmpty()){
-                    paSocMed.remove(lnCtr);
+                if(paDetail.get(lnCtr).getAccount().isEmpty()){
+                    paDetail.remove(lnCtr);
                 }
             }
-            ValidatorInterface validator = ValidatorFactory.make(  ValidatorFactory.TYPE.Client_Social_Media, paSocMed.get(lnCtr));
+            
+            paDetail.get(lnCtr).setClientID(fsClientID);
+            ValidatorInterface validator = ValidatorFactory.make(  ValidatorFactory.TYPE.Client_Social_Media, paDetail.get(lnCtr));
             validator.setGRider(poGRider);
             if (!validator.isEntryOkay()){
                 obj.put("result", "error");
                 obj.put("message", validator.getMessage());
                 return obj;
-
             }
-            obj = paSocMed.get(lnCtr).saveRecord();
+            
+            obj = paDetail.get(lnCtr).saveRecord();
         }    
         
         return obj;
     }
     
-    public ArrayList<Model_Client_Social_Media> getSocialMediaList(){return paSocMed;}
-    public void setSocialMediaList(ArrayList<Model_Client_Social_Media> foObj){this.paSocMed = foObj;}
+    public ArrayList<Model_Client_Social_Media> getSocialMediaList(){
+        if(paDetail == null){
+           paDetail = new ArrayList<>();
+        }
+        return paDetail;
+    }
+    public void setSocialMediaList(ArrayList<Model_Client_Social_Media> foObj){this.paDetail = foObj;}
     
-    public void setSocialMed(int fnRow, int fnIndex, Object foValue){ paSocMed.get(fnRow).setValue(fnIndex, foValue);}
-    public void setSocialMed(int fnRow, String fsIndex, Object foValue){ paSocMed.get(fnRow).setValue(fsIndex, foValue);}
-    public Object getSocialMed(int fnRow, int fnIndex){return paSocMed.get(fnRow).getValue(fnIndex);}
-    public Object getSocialMed(int fnRow, String fsIndex){return paSocMed.get(fnRow).getValue(fsIndex);}
+    public void setSocialMed(int fnRow, int fnIndex, Object foValue){ paDetail.get(fnRow).setValue(fnIndex, foValue);}
+    public void setSocialMed(int fnRow, String fsIndex, Object foValue){ paDetail.get(fnRow).setValue(fsIndex, foValue);}
+    public Object getSocialMed(int fnRow, int fnIndex){return paDetail.get(fnRow).getValue(fnIndex);}
+    public Object getSocialMed(int fnRow, String fsIndex){return paDetail.get(fnRow).getValue(fsIndex);}
     
     public Object removeSocialMed(int fnRow){
         JSONObject loJSON = new JSONObject();
-        if(paSocMed.get(fnRow).getEntryBy().isEmpty()){
-            paSocMed.remove(fnRow);
+        if(paDetail.get(fnRow).getEntryBy().isEmpty()){
+            paDetail.remove(fnRow);
         } else {
             loJSON.put("result", "error");
             loJSON.put("message", "You cannot remove Social Media that already saved, Deactivate it instead.");

@@ -108,12 +108,6 @@ public class Client implements GRecord{
                 poJSON.put("message", "initialized new record failed.");
                 return poJSON;
             }else{
-                
-//                poAddress.addAddress(poClient.getModel().getClientID());
-//                poMobile.addContact(poClient.getModel().getClientID());
-//                poEmail.addEmail(poClient.getModel().getClientID());
-//                poSocMed.addSocialMedia(poClient.getModel().getClientID());
-                
                 poJSON.put("result", "success");
                 poJSON.put("message", "initialized new record.");
                 pnEditMode = EditMode.ADDNEW;
@@ -134,9 +128,21 @@ public class Client implements GRecord{
         poJSON = poClient.openRecord(fsValue);
         
         poJSON = checkData(poAddress.OpenClientAddress(fsValue));
+        if(!"success".equals(poJSON.get("result"))){
+            pnEditMode = EditMode.UNKNOWN;
+        }
         poJSON = checkData(poMobile.OpenClientMobile(fsValue));
+        if(!"success".equals(poJSON.get("result"))){
+            pnEditMode = EditMode.UNKNOWN;
+        }
         poJSON = checkData(poEmail.OpenClientEMail(fsValue));
-        poJSON = checkData(poSocMed.OpenClientSocialAccount(fsValue)); 
+        if(!"success".equals(poJSON.get("result"))){
+            pnEditMode = EditMode.UNKNOWN;
+        }
+        poJSON = checkData(poSocMed.OpenClientSocialAccount(fsValue));
+        if(!"success".equals(poJSON.get("result"))){
+            pnEditMode = EditMode.UNKNOWN;
+        } 
         
         return poJSON;
     }
@@ -204,7 +210,6 @@ public class Client implements GRecord{
     private JSONObject validateEntry(){
         JSONObject obj = new JSONObject();
         
-        
         ValidatorInterface validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Master, poClient.getModel());
         validator.setGRider(poGRider);
         if (!validator.isEntryOkay()){
@@ -268,7 +273,7 @@ public class Client implements GRecord{
             return obj;
         }
         
-        //VALIDATE : Client Mobile
+        //VALIDATE : Client Mobile based on client type
         try {
             String lsCompnyNm = "";
             String lsClientID = "";
@@ -283,9 +288,9 @@ public class Client implements GRecord{
                             ", b.sMobileNo " +
                             "FROM client_master a " +
                             "LEFT JOIN client_mobile b ON b.sClientID = a.sClientID " ;
-                lsSQL = MiscUtil.addCondition(lsSQL, "b.sMobileNo = " + SQLUtil.toSQL(poMobile.getMobile(lnCtr,"sMobileNo"))) +
-                                                        " AND b.sMobileID <> " + SQLUtil.toSQL(poMobile.getMobile(lnCtr,"sMobileID")) +
-                                                        " AND a.cClientTp = " + SQLUtil.toSQL(poClient.getMaster("cClientTp")) ;
+                lsSQL = MiscUtil.addCondition(lsSQL, "b.sMobileNo = " + SQLUtil.toSQL(poMobile.getDetailModel(lnCtr).getMobileNo())) +
+                                                        " AND b.sMobileID <> " + SQLUtil.toSQL(poMobile.getDetailModel(lnCtr).getMobileID()) +
+                                                        " AND a.cClientTp = " + SQLUtil.toSQL(poClient.getModel().getClientTp()) ;
 
                 System.out.println("EXISTING CONTACT NUMBER WITH THE SAME CLIENT TYPE CHECK: " + lsSQL);
                 ResultSet loRS = poGRider.executeQuery(lsSQL);
@@ -297,14 +302,82 @@ public class Client implements GRecord{
 
                         MiscUtil.close(loRS);
                         obj.put("result", "error");
-                        obj.put("message", "Existing Contact Number Record for.\n\nID: " + lsClientID + "\nName: " + lsCompnyNm.toUpperCase() );
+                        obj.put("message", "Existing Contact Number : "+poMobile.getDetailModel(lnCtr).getMobileNo()+" for.\n\nID: " + lsClientID + "\nName: " + lsCompnyNm.toUpperCase() );
                         return obj;
                 }
             }
         } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
+        obj = validateDetail();
+        if("error".equals((String) obj.get("result"))){
+            return obj;
+        }
+        
         return obj;
+    }
+    
+    /**
+     * Validate all detail
+     * @return 
+     */
+    private JSONObject validateDetail(){
+        JSONObject loJSON = new JSONObject();
+        ValidatorInterface validator;
+        int lnSize = 0;
+        
+        lnSize = poAddress.getAddressList().size() -1;
+        for (int lnCtr = 0; lnCtr <= lnSize; lnCtr++){
+            poAddress.checkAddress(poAddress.getDetailModel(lnCtr).getFullAddress(), lnCtr, false);
+            poEmail.getDetailModel(lnCtr).setClientID(poClient.getModel().getClientID());
+            validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Address, poAddress.getDetailModel(lnCtr));
+            validator.setGRider(poGRider);
+            if (!validator.isEntryOkay()){
+                loJSON.put("result", "error");
+                loJSON.put("message", validator.getMessage());
+                return loJSON;
+            }
+        }
+        
+        lnSize = poMobile.getMobileList().size() -1;
+        for (int lnCtr = 0; lnCtr <= lnSize; lnCtr++){
+            poMobile.getDetailModel(lnCtr).setClientID(poClient.getModel().getClientID());
+            validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Mobile, poMobile.getDetailModel(lnCtr));
+            validator.setGRider(poGRider);
+            if (!validator.isEntryOkay()){
+                loJSON.put("result", "error");
+                loJSON.put("message", validator.getMessage());
+                return loJSON;
+            }
+        }
+        
+        lnSize = poEmail.getEmailList().size() -1;
+        for (int lnCtr = 0; lnCtr <= lnSize; lnCtr++){
+            poEmail.getDetailModel(lnCtr).setClientID(poClient.getModel().getClientID());
+            validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Email, poEmail.getDetailModel(lnCtr));
+            validator.setGRider(poGRider);
+            if (!validator.isEntryOkay()){
+                loJSON.put("result", "error");
+                loJSON.put("message", validator.getMessage());
+                return loJSON;
+            }
+        }
+        
+        lnSize = poSocMed.getSocialMediaList().size() -1;
+        for (int lnCtr = 0; lnCtr <= lnSize; lnCtr++){
+            poSocMed.getDetailModel(lnCtr).setClientID(poClient.getModel().getClientID());
+            validator = ValidatorFactory.make(  ValidatorFactory.TYPE.Client_Social_Media, poSocMed.getDetailModel(lnCtr));
+            validator.setGRider(poGRider);
+            if (!validator.isEntryOkay()){
+                loJSON.put("result", "error");
+                loJSON.put("message", validator.getMessage());
+                return loJSON;
+            }
+        }
+        
+        return loJSON;
     }
     
 
@@ -370,15 +443,19 @@ public class Client implements GRecord{
 //        return poJSON;
 //    }
     
+    public Client_Address getAddressModel(){ return poAddress;}
     public ArrayList getAddressList(){return poAddress.getAddressList();}
     public void setAddressList(ArrayList foObj){this.poAddress.setAddressList(foObj);}
     
+    public Client_Mobile getMobileModel(){ return poMobile;}
     public ArrayList getMobileList(){return poMobile.getMobileList();}
     public void setMobileList(ArrayList foObj){this.poMobile.setMobileList(foObj);}
     
+    public Client_Email getEmailModel(){ return poEmail;}
     public ArrayList getEmailList(){return poEmail.getEmailList();}
     public void setEmailList(ArrayList foObj){this.poEmail.setEmailList(foObj);}
     
+    public Client_Social_Media getSocMedModel(){ return poSocMed;}
     public ArrayList getSocialMediaList(){return poSocMed.getSocialMediaList();}
     public void setSocialMediaList(ArrayList foObj){this.poSocMed.setSocialMediaList(foObj);}
     

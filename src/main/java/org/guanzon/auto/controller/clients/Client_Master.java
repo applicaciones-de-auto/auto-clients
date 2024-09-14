@@ -403,7 +403,7 @@ public class Client_Master implements GRecord{
                             "Client ID»Spouse Name»Address", 
                             "sClientID»sCompnyNm»sAddressx",
                             "a.sClientID»a.sCompnyNm",
-                            0);
+                            1);
             
         if (loJSON != null) {
             if(!"error".equals(loJSON.get("result"))){

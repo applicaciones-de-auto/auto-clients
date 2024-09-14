@@ -31,7 +31,7 @@ public class Client_Email {
     String psMessagex;
     public JSONObject poJSON;
     
-    ArrayList<Model_Client_Email> paMail;
+    ArrayList<Model_Client_Email> paDetail;
     
     public Client_Email(GRider foAppDrver){
         poGRider = foAppDrver;
@@ -41,37 +41,37 @@ public class Client_Email {
         return pnEditMode;
     }
     
-    public Model_Client_Email getEMail(int fnIndex){
-        if (fnIndex > paMail.size() - 1 || fnIndex < 0) return null;
+    public Model_Client_Email getDetailModel(int fnIndex){
+        if (fnIndex > paDetail.size() - 1 || fnIndex < 0) return null;
         
-        return paMail.get(fnIndex);
+        return paDetail.get(fnIndex);
     }
     
     public JSONObject addEmail(String fsClientID){
         
-        if(paMail == null){
-           paMail = new ArrayList<>();
+        if(paDetail == null){
+           paDetail = new ArrayList<>();
         }
         
         poJSON = new JSONObject();
-        if (paMail.size()<=0){
-            paMail.add(new Model_Client_Email(poGRider));
-            paMail.get(0).newRecord();
-            paMail.get(0).setValue("sClientID", fsClientID);
+        if (paDetail.size()<=0){
+            paDetail.add(new Model_Client_Email(poGRider));
+            paDetail.get(0).newRecord();
+            paDetail.get(0).setValue("sClientID", fsClientID);
             poJSON.put("result", "success");
             poJSON.put("message", "Email address add record.");
         } else {
-            ValidatorInterface validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Email, paMail.get(paMail.size()-1));
+            ValidatorInterface validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Email, paDetail.get(paDetail.size()-1));
             validator.setGRider(poGRider);
             if(!validator.isEntryOkay()){
                 poJSON.put("result", "error");
                 poJSON.put("message", validator.getMessage());
                 return poJSON;
             }
-            paMail.add(new Model_Client_Email(poGRider));
-            paMail.get(paMail.size()-1).newRecord();
+            paDetail.add(new Model_Client_Email(poGRider));
+            paDetail.get(paDetail.size()-1).newRecord();
 
-            paMail.get(paMail.size()-1).setClientID(fsClientID);
+            paDetail.get(paDetail.size()-1).setClientID(fsClientID);
             
             poJSON.put("result", "success");
             poJSON.put("message", "Email address add record.");
@@ -80,7 +80,7 @@ public class Client_Email {
     }
     
     public JSONObject OpenClientEMail(String fsValue){
-        paMail = new ArrayList<>();
+        paDetail = new ArrayList<>();
         poJSON = new JSONObject();
         String lsSQL = "SELECT" +
                     "  sEmailIDx" +
@@ -94,8 +94,8 @@ public class Client_Email {
             int lnctr = 0;
             if (MiscUtil.RecordCount(loRS) > 0) {
                 while(loRS.next()){
-                        paMail.add(new Model_Client_Email(poGRider));
-                        paMail.get(paMail.size() - 1).openRecord(loRS.getString("sEmailIDx"));
+                        paDetail.add(new Model_Client_Email(poGRider));
+                        paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sEmailIDx"));
                         
                         pnEditMode = EditMode.UPDATE;
                         lnctr++;
@@ -105,7 +105,7 @@ public class Client_Email {
                 
                 //System.out.println("lnctr = " + lnctr);
             }else{
-//                paMail = new ArrayList<>();
+//                paDetail = new ArrayList<>();
 //                addEmail(fsValue);
                 poJSON.put("result", "error");
                 poJSON.put("continue", true);
@@ -122,13 +122,13 @@ public class Client_Email {
     public JSONObject saveEmail(String fsClientID){
         JSONObject obj = new JSONObject();
         
-        if(paMail == null){
+        if(paDetail == null){
             obj.put("result", "error");
             obj.put("continue", true);
             return obj;
         }
         
-        int lnSize = paMail.size() -1;
+        int lnSize = paDetail.size() -1;
         if(lnSize < 0){
             obj.put("result", "error");
             obj.put("continue", true);
@@ -139,40 +139,43 @@ public class Client_Email {
         String lsSQL;
         
         for (lnCtr = 0; lnCtr <= lnSize; lnCtr++){
-            paMail.get(lnCtr).setClientID(fsClientID);
-
-            paMail.get(lnCtr).setModifiedDte(poGRider.getServerDate());
             if(lnCtr>0){
-                if(paMail.get(lnCtr).getEmailAdd().isEmpty()){
-                    paMail.remove(lnCtr);
+                if(paDetail.get(lnCtr).getEmailAdd().isEmpty()){
+                    paDetail.remove(lnCtr);
                 }
             }
             
-            ValidatorInterface validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Email, paMail.get(lnCtr));
+            paDetail.get(lnCtr).setClientID(fsClientID);
+            ValidatorInterface validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Email, paDetail.get(lnCtr));
             validator.setGRider(poGRider);
             if (!validator.isEntryOkay()){
                 obj.put("result", "error");
                 obj.put("message", validator.getMessage());
                 return obj;
             }
-            obj = paMail.get(lnCtr).saveRecord();
+            obj = paDetail.get(lnCtr).saveRecord();
         }    
         
         return obj;
     }
     
-    public ArrayList<Model_Client_Email> getEmailList(){return paMail;}
-    public void setEmailList(ArrayList<Model_Client_Email> foObj){this.paMail = foObj;}
+    public ArrayList<Model_Client_Email> getEmailList(){
+        if(paDetail == null){
+           paDetail = new ArrayList<>();
+        }
+        return paDetail;
+    }
+    public void setEmailList(ArrayList<Model_Client_Email> foObj){this.paDetail = foObj;}
     
-    public void setEmail(int fnRow, int fnIndex, Object foValue){ paMail.get(fnRow).setValue(fnIndex, foValue);}
-    public void setEmail(int fnRow, String fsIndex, Object foValue){ paMail.get(fnRow).setValue(fsIndex, foValue);}
-    public Object getEmail(int fnRow, int fnIndex){return paMail.get(fnRow).getValue(fnIndex);}
-    public Object getEmail(int fnRow, String fsIndex){return paMail.get(fnRow).getValue(fsIndex);}
+    public void setEmail(int fnRow, int fnIndex, Object foValue){ paDetail.get(fnRow).setValue(fnIndex, foValue);}
+    public void setEmail(int fnRow, String fsIndex, Object foValue){ paDetail.get(fnRow).setValue(fsIndex, foValue);}
+    public Object getEmail(int fnRow, int fnIndex){return paDetail.get(fnRow).getValue(fnIndex);}
+    public Object getEmail(int fnRow, String fsIndex){return paDetail.get(fnRow).getValue(fsIndex);}
     
     public Object removeEmail(int fnRow){
         JSONObject loJSON = new JSONObject();
-        if(paMail.get(fnRow).getEntryBy().isEmpty()){
-            paMail.remove(fnRow);
+        if(paDetail.get(fnRow).getEntryBy().isEmpty()){
+            paDetail.remove(fnRow);
         } else {
             loJSON.put("result", "error");
             loJSON.put("message", "You cannot remove Email that already saved, Deactivate it instead.");
