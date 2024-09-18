@@ -331,7 +331,7 @@ public class Client implements GRecord{
         lnSize = poAddress.getAddressList().size() -1;
         for (int lnCtr = 0; lnCtr <= lnSize; lnCtr++){
             poAddress.checkAddress(poAddress.getDetailModel(lnCtr).getFullAddress(), lnCtr, false);
-            poEmail.getDetailModel(lnCtr).setClientID(poClient.getModel().getClientID());
+            poAddress.getDetailModel(lnCtr).setClientID(poClient.getModel().getClientID());
             validator = ValidatorFactory.make(ValidatorFactory.TYPE.Client_Address, poAddress.getDetailModel(lnCtr));
             validator.setGRider(poGRider);
             if (!validator.isEntryOkay()){

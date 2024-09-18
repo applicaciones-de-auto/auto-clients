@@ -62,7 +62,7 @@ public class ClientMaster {
                         + ", a.dEntryDte "  //22                                                                                
                         + ", a.sModified "  //23                                                                                
                         + ", a.dModified "  //24                                                                                
-                        + ", IFNULL(b.sCntryNme, '') sCntryNme   " //25                                                         
+                        + ", IFNULL(b.sNational, '') sNational   " //25                                                         
                         + ", TRIM(CONCAT(c.sTownName, ', ', d.sProvName)) sTownName   "   //26       
                         + ", e.sCompnyNm    sSpouseNm " //27
                         + ",  IFNULL(CONCAT( IFNULL(CONCAT(g.sHouseNox,' ') , ''),    "                                         
