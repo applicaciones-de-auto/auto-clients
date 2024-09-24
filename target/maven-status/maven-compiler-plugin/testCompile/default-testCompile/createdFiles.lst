@@ -1,4 +1,6 @@
 VehicleSerialTest.class
 SalesAgentTest.class
 ClientTest.class
+VehicleGatepassTest.class
+ServiceMechanicTest.class
 SalesExecutiveTest.class
