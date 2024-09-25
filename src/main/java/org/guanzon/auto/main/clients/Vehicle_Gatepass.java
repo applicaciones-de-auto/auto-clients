@@ -1,0 +1,305 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.guanzon.auto.main.clients;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import org.guanzon.appdriver.base.GRider;
+import org.guanzon.appdriver.base.SQLUtil;
+import org.guanzon.appdriver.constant.EditMode;
+import org.guanzon.appdriver.iface.GTransaction;
+import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Master;
+import org.guanzon.auto.controller.sales.VehicleSalesProposal_Labor;
+import org.guanzon.auto.controller.sales.VehicleSalesProposal_Master;
+import org.guanzon.auto.controller.sales.VehicleSalesProposal_Parts;
+import org.json.simple.JSONObject;
+
+/**
+ *
+ * @author Arsiela
+ */
+public class Vehicle_Gatepass implements GTransaction{
+    final String XML = "Model_VehicleGatepass_Master.xml";
+    GRider poGRider;
+    String psBranchCd;
+    boolean pbWtParent;
+    int pnEditMode;
+    String psTransStat;
+    String psMessagex;
+    public JSONObject poJSON;
+    
+    Vehicle_Gatepass_Master poController;
+    VehicleSalesProposal_Master poVSPMaster;
+    VehicleSalesProposal_Labor poVSPLabor;
+    VehicleSalesProposal_Parts poVSPParts;
+    
+    public Vehicle_Gatepass(GRider foAppDrver, boolean fbWtParent, String fsBranchCd){
+        poController = new Vehicle_Gatepass_Master(foAppDrver,fbWtParent,fsBranchCd);
+        poVSPMaster =  new VehicleSalesProposal_Master(foAppDrver,fbWtParent,fsBranchCd);
+        poVSPLabor = new VehicleSalesProposal_Labor(foAppDrver);
+        poVSPParts = new VehicleSalesProposal_Parts(foAppDrver);
+        
+        poGRider = foAppDrver;
+        pbWtParent = fbWtParent;
+        psBranchCd = fsBranchCd.isEmpty() ? foAppDrver.getBranchCode() : fsBranchCd;
+    }
+
+    @Override
+    public int getEditMode() {
+        pnEditMode = poController.getEditMode();
+        return pnEditMode;
+    }
+    
+    @Override
+    public JSONObject setMaster(int fnCol, Object foData) {
+        return poController.setMaster(fnCol, foData);
+    }
+
+    @Override
+    public JSONObject setMaster(String fsCol, Object foData) {
+        return poController.setMaster(fsCol, foData);
+    }
+
+    public Object getMaster(int fnCol) {
+        if(pnEditMode == EditMode.UNKNOWN)
+            return null;
+        else 
+            return poController.getMaster(fnCol);
+    }
+
+    public Object getMaster(String fsCol) {
+        return poController.getMaster(fsCol);
+    }
+    
+    @Override
+    public JSONObject newTransaction() {
+        poJSON = new JSONObject();
+        try{
+            poJSON = poController.newTransaction();
+            
+            if("success".equals(poJSON.get("result"))){
+                pnEditMode = poController.getEditMode();
+            } else {
+                pnEditMode = EditMode.UNKNOWN;
+            }
+               
+        }catch(NullPointerException e){
+            poJSON.put("result", "error");
+            poJSON.put("message", e.getMessage());
+            pnEditMode = EditMode.UNKNOWN;
+        }
+        return poJSON;
+    }
+    
+    @Override
+    public JSONObject openTransaction(String fsValue) {
+        poJSON = new JSONObject();
+        
+        poJSON = poController.openTransaction(fsValue);
+        if("success".equals(poJSON.get("result"))){
+            pnEditMode = poController.getEditMode();
+        } else {
+            pnEditMode = EditMode.UNKNOWN;
+        }
+        
+        if(poController.getMasterModel().getSourceGr() != null){
+            if(poController.getMasterModel().getSourceGr().equals("VEHICLE SALES")){
+                poJSON = openVSPDetail(poController.getMasterModel().getSourceCD());
+                if(!"success".equals(poJSON.get("result"))){
+                    return poJSON;
+                }
+            }
+        }
+        
+        return poJSON;
+    }
+    
+    private JSONObject openVSPDetail(String fsValue){
+        if(fsValue != null){
+            if(!fsValue.trim().isEmpty()){
+                poJSON = poVSPMaster.openTransaction(fsValue);
+                if("success".equals(poJSON.get("result"))){
+                    pnEditMode = poController.getEditMode();
+                } else {
+                    pnEditMode = EditMode.UNKNOWN;
+                }
+
+                poJSON = poVSPLabor.openDetail(fsValue);
+                if(!"success".equals((String) checkData(poJSON).get("result"))){
+                    pnEditMode = EditMode.UNKNOWN;
+                    return poJSON;
+                }
+
+                poJSON = poVSPParts.openDetail(fsValue);
+                if(!"success".equals((String) checkData(poJSON).get("result"))){
+                    pnEditMode = EditMode.UNKNOWN;
+                    return poJSON;
+                }
+            }
+        }
+        
+        return poJSON;
+    }
+
+    @Override
+    public JSONObject updateTransaction() {
+        poJSON = new JSONObject();  
+        poJSON = poController.updateTransaction();
+        if("error".equals(poJSON.get("result"))){
+            return poJSON;
+        }
+        pnEditMode = poController.getEditMode();
+        return poJSON;
+    }
+
+    @Override
+    public JSONObject saveTransaction() {
+        poJSON = new JSONObject();  
+        
+        if (!pbWtParent) poGRider.beginTrans();
+        
+//        poController.setTargetBranchCd(poController.getMasterModel().getBranchCD());
+        poJSON =  poController.saveTransaction();
+        if("error".equalsIgnoreCase((String)checkData(poJSON).get("result"))){
+            if (!pbWtParent) poGRider.rollbackTrans();
+            return checkData(poJSON);
+        }
+        if (!pbWtParent) poGRider.commitTrans();
+        
+        return poJSON;
+    }
+    
+    private JSONObject checkData(JSONObject joValue){
+        if(pnEditMode == EditMode.ADDNEW ||pnEditMode == EditMode.READY || pnEditMode == EditMode.UPDATE){
+            if(joValue.containsKey("continue")){
+                if(true == (boolean)joValue.get("continue")){
+                    joValue.put("result", "success");
+                    joValue.put("message", "Record saved successfully.");
+                }
+            }
+        }
+        return joValue;
+    }
+
+    @Override
+    public JSONObject deleteTransaction(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JSONObject closeTransaction(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JSONObject postTransaction(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JSONObject voidTransaction(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JSONObject cancelTransaction(String fsValue) {
+        poJSON = new JSONObject();  
+        
+        if (!pbWtParent) poGRider.beginTrans();
+        
+        poJSON =   poController.cancelTransaction(fsValue);
+        if("error".equalsIgnoreCase((String) poJSON.get("result"))){
+            if (!pbWtParent) poGRider.rollbackTrans();
+            return poJSON;
+        }
+        if (!pbWtParent) poGRider.commitTrans();
+        
+        return poJSON;
+    }
+    
+    public JSONObject searchTransaction(String fsValue, boolean fIsActive) {
+        poJSON = new JSONObject();  
+        poJSON = poController.searchTransaction(fsValue, fIsActive);
+        if(!"error".equals((String) poJSON.get("result"))){
+            poJSON = openTransaction((String) poJSON.get("sTransNox"));
+        }
+        return poJSON;
+    }
+
+    @Override
+    public JSONObject searchWithCondition(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JSONObject searchTransaction(String string, String string1, boolean bln) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JSONObject searchMaster(String string, String string1, boolean bln) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JSONObject searchMaster(int i, String string, boolean bln) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Vehicle_Gatepass_Master getMasterModel() {
+        return poController;
+    }
+    
+    public VehicleSalesProposal_Master getVSPModel(){
+        return poVSPMaster;
+    }
+    
+    public VehicleSalesProposal_Labor getVSPLaborModel(){return poVSPLabor;}
+    public ArrayList getVSPLaborList(){return poVSPLabor.getDetailList();}
+    
+    public VehicleSalesProposal_Parts getVSPPartsModel(){ return poVSPParts;}
+    public ArrayList getVSPPartsList(){return poVSPParts.getDetailList();}
+
+    @Override
+    public void setTransactionStatus(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public JSONObject searchVSP(String fsValue, boolean fbByCode) {
+        JSONObject loJSON = poVSPMaster.searchTransaction(fsValue, fbByCode, false);
+        if(!"error".equals(loJSON.get("result"))){
+            if(((String) loJSON.get("sUDRNoxxx")) == null){
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "VSP No. "+(String) loJSON.get("sVSPNOxxx")+" has not been issued VDR yet."
+                                            + "\n\nLinking aborted.");
+                    return loJSON;
+            } else {
+                if(((String) loJSON.get("sUDRNoxxx")).trim().isEmpty()){
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "VSP No. "+(String) loJSON.get("sVSPNOxxx")+" has not been issued VDR yet."
+                                            + "\n\nLinking aborted.");
+                    return loJSON;
+                }
+            }
+            
+            poController.getMasterModel().setSourceCD((String) loJSON.get("sTransNox"));
+            poController.getMasterModel().setSourceNo((String) loJSON.get("sVSPNOxxx"));
+            poController.getMasterModel().setSourceGr("VEHICLE SALES");
+            
+            loJSON = openVSPDetail((String) loJSON.get("sTransNox"));
+            if(!"success".equals(loJSON.get("result"))){
+                return loJSON;
+            }
+        } else {
+            
+        }
+        
+        return loJSON;
+    }
+    
+    
+}
