@@ -269,6 +269,12 @@ public class Vehicle_Gatepass implements GTransaction{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
+    /**
+     * Search VSP Transaction
+     * @param fsValue handles transaction no or vsp no
+     * @param fbByCode when searching thru specific vsp set to true else false
+     * @return 
+     */
     public JSONObject searchVSP(String fsValue, boolean fbByCode) {
         JSONObject loJSON = poVSPMaster.searchTransaction(fsValue, fbByCode, false);
         if(!"error".equals(loJSON.get("result"))){
