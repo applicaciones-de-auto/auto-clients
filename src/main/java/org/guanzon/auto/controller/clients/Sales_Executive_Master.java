@@ -7,6 +7,7 @@ package org.guanzon.auto.controller.clients;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
@@ -17,9 +18,11 @@ import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
+import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GRecord;
 import org.guanzon.auto.general.CancelForm;
 import org.guanzon.auto.model.clients.Model_Sales_Executive;
+import org.guanzon.auto.model.sales.Model_VehicleSalesProposal_Master;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
 import org.guanzon.auto.validator.clients.ValidatorInterface;
 import org.json.simple.JSONObject;
@@ -38,7 +41,10 @@ public class Sales_Executive_Master implements GRecord {
     String psRecdStat;
 
     Model_Sales_Executive poModel;
-    CachedRowSet poTransactions;
+    
+    ArrayList<Model_VehicleSalesProposal_Master> paDetail;
+    
+//    CachedRowSet poTransactions;
     JSONObject poJSON;
 
     public Sales_Executive_Master(GRider foAppDrver, boolean fbWtParent, String fsBranchCd){
@@ -358,112 +364,163 @@ public class Sales_Executive_Master implements GRecord {
         return poJSON;
     }
     
-    private String getSQ_VSPTransaction(){
-        return    " SELECT  "                                                                                                
-                + "   a.sTransNox "                                                                                          
-                + " , a.sVSPNOxxx "                                                                                          
-                + " , a.dTransact "                                                                                          
-                + " , a.sBranchCd "                                                                                          
-                + " , q.sBranchNm "                                                                                          
-                + " , b.sClientID AS  sInqCltID "                                                                            
-                + " , c.sCompnyNm AS  sInqCltNm "                                                                            
-                + " , IFNULL(UPPER(CONCAT( IFNULL(CONCAT(dd.sHouseNox,' ') , ''), IFNULL(CONCAT(dd.sAddressx,' ') , ''), "   
-                + "     	IFNULL(CONCAT(f.sBrgyName,' '), ''),  "                                                             
-                + "     	IFNULL(CONCAT(e.sTownName, ', '),''), "                                                             
-                + "     	IFNULL(CONCAT(g.sProvName),'') )), '') AS sInqCtAdd "                                                
-                + " , h.sCompnyNm AS  sBuyCltNm  "                                                                           
-                + " , IFNULL(UPPER(CONCAT( IFNULL(CONCAT(ii.sHouseNox,' ') , ''), IFNULL(CONCAT(ii.sAddressx,' ') , ''), "    
-                + "     	IFNULL(CONCAT(k.sBrgyName,' '), ''),  "                                                             
-                + "     	IFNULL(CONCAT(j.sTownName, ', '),''), "                                                             
-                + "     	IFNULL(CONCAT(l.sProvName),'') ))	, '') AS sBuyCtAdd " 					                                   
-                + " , p.sPlatform AS  sPlatForm  "                                                                          
-                + " , r.sCompnyNm AS  sSaleExNm  "                                                                          
-                + " , s.sCompnyNm AS  sSalesAgn  "                                                                          
-                + " , m.sCSNoxxxx AS sCSNoxxxx 	 "																                                         
-                + " , n.sPlateNox AS sPlateNox 	 "																                                         
-                + " , m.sFrameNox AS sFrameNox   "																			                                   
-                + " , m.sEngineNo AS sEngineNo   "                                                                          
-                + " , o.sDescript AS sDescript   "                                                                          
-                + " , t.sTransNox AS sUDRCodex   "                                                                          
-                + " , t.sReferNox AS sUDRNoxxx   "                                                                          
-                + " , t.dTransact AS dUDRDatex   "	                                                                         
-                + " FROM vsp_master a "                                                                                      
-                + " LEFT JOIN customer_inquiry b ON b.sTransNox = a.sInqryIDx  "                                             
-                /*inquiring customer*/                                                                                   
-                + " LEFT JOIN client_master c ON c.sClientID = b.sClientID  "                                                
-                + " LEFT JOIN client_address d ON d.sClientID = c.sClientID AND d.cPrimaryx = '1' "                           
-                + " LEFT JOIN addresses dd ON dd.sAddrssID = d.sAddrssID "                                                   
-                + " LEFT JOIN TownCity e ON e.sTownIDxx = dd.sTownIDxx   "                                                   
-                + " LEFT JOIN barangay f ON f.sBrgyIDxx = dd.sBrgyIDxx AND f.sTownIDxx = dd.sTownIDxx "                       
-                + " LEFT JOIN Province g ON g.sProvIDxx = e.sProvIDxx "                                                      
-                /*buying customer*/                                                                                      
-                + " LEFT JOIN client_master h ON h.sClientID = a.sClientID "                                                  
-                + " LEFT JOIN client_address i ON i.sClientID = c.sClientID AND i.cPrimaryx = '1' "                           
-                + " LEFT JOIN addresses ii ON ii.sAddrssID = d.sAddrssID "                                                    
-                + " LEFT JOIN TownCity j ON j.sTownIDxx = ii.sTownIDxx   "                                                    
-                + " LEFT JOIN barangay k ON k.sBrgyIDxx = ii.sBrgyIDxx AND k.sTownIDxx = ii.sTownIDxx "                      
-                + " LEFT JOIN Province l ON l.sProvIDxx = j.sProvIDxx "                                                       
-                /*vehicle information*/  								                                                                 
-                + " LEFT JOIN vehicle_serial m ON m.sSerialID = a.sSerialID "      										                       
-                + " LEFT JOIN vehicle_serial_registration n ON n.sSerialID = m.sSerialID "                                     
-                + " LEFT JOIN vehicle_master o ON o.sVhclIDxx = m.sVhclIDxx "                                                 
-                /*inquiry information*/                                                                                  
-                + " LEFT JOIN online_platforms p ON p.sTransNox = b.sSourceNo "                                                
-                + " LEFT JOIN branch q ON q.sBranchCd = a.sBranchCd  "                                                       
-                + " LEFT JOIN GGC_ISysDBF.Client_Master r ON r.sClientID = b.sEmployID "                                      
-                + " LEFT JOIN client_master s ON s.sClientID = b.sAgentIDx "                                                  
-                /*udr information*/                                                                                      
-                + " INNER JOIN udr_master t ON t.sSourceCd = a.sTransNox AND t.cTranStat = '1' " ;
-                   
-    }        
-    
-    public JSONObject loadTransactions(){
+     public JSONObject openVSPDetail(){
+        paDetail = new ArrayList<>();
         poJSON = new JSONObject();
-        try {
-            
-            String lsSQL = getSQ_VSPTransaction();
-            lsSQL = MiscUtil.addCondition(lsSQL, " b.sEmployID = " + SQLUtil.toSQL(poModel.getClientID()))
-                                                    + " AND a.cTranStat = '1'  "
+        Model_VehicleSalesProposal_Master loEntity = new Model_VehicleSalesProposal_Master(poGRider);
+        String lsSQL =  loEntity.getSQL();
+        lsSQL = MiscUtil.addCondition(lsSQL, " h.sEmployID = " + SQLUtil.toSQL(poModel.getClientID()))
+                                                    + " AND a.cTranStat <> " + SQLUtil.toSQL(TransactionStatus.STATE_CANCELLED)
+                                                    + " AND za.cTranStat <> " + SQLUtil.toSQL(TransactionStatus.STATE_CANCELLED)
                                                     + " GROUP BY a.sTransNox ORDER BY a.dTransact DESC " ;
-            
-            System.out.println("VSP : "+ lsSQL);
-            RowSetFactory factory = RowSetProvider.newFactory();
-            
-            ResultSet loRS = poGRider.executeQuery(lsSQL);
-            try {
-                poTransactions = factory.createCachedRowSet();
-                poTransactions.populate(loRS);
-                MiscUtil.close(loRS);
-            } catch (SQLException e) {
+        System.out.println(lsSQL);
+        ResultSet loRS = poGRider.executeQuery(lsSQL);
+        
+        try {
+            int lnctr = 0;
+            if (MiscUtil.RecordCount(loRS) > 0) {
+                while(loRS.next()){
+                        paDetail.add(new Model_VehicleSalesProposal_Master(poGRider));
+                        paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"));
+                        
+                        pnEditMode = EditMode.UPDATE;
+                        lnctr++;
+                        poJSON.put("result", "success");
+                        poJSON.put("message", "Record loaded successfully.");
+                    } 
+                
+            }else{
+//                paDetail = new ArrayList<>();
+//                addDetail(fsValue);
                 poJSON.put("result", "error");
-                poJSON.put("message", e.getMessage());
+                poJSON.put("continue", true);
+                poJSON.put("message", "No record selected.");
             }
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(Sales_Executive_Master.class.getName()).log(Level.SEVERE, null, ex);
+            MiscUtil.close(loRS);
+        } catch (SQLException e) {
+            poJSON.put("result", "error");
+            poJSON.put("message", e.getMessage());
         }
         return poJSON;
     }
-    
-    public int getVSPTransCount() throws SQLException{
-        if (poTransactions != null){
-            poTransactions.last();
-            return poTransactions.getRow();
-        }else{
-            return 0;
-        }
+     
+    public Model_VehicleSalesProposal_Master getVSPModel(int fnRow) {
+        return paDetail.get(fnRow);
     }
-    
-    public Object getVSPTransDetail(int fnRow, int fnIndex) throws SQLException{
-        if (fnIndex == 0) return null;
         
-        poTransactions.absolute(fnRow);
-        return poTransactions.getObject(fnIndex);
+    public ArrayList<Model_VehicleSalesProposal_Master> getDetailList(){
+        if(paDetail == null){
+           paDetail = new ArrayList<>();
+        }
+        return paDetail;
     }
     
-    public Object getVSPTransDetail(int fnRow, String fsIndex) throws SQLException{
-        return getVSPTransDetail(fnRow, MiscUtil.getColumnIndex(poTransactions, fsIndex));
-    }
+//    private String getSQ_VSPTransaction(){
+//        return    " SELECT  "                                                                                                
+//                + "   a.sTransNox "                                                                                          
+//                + " , a.sVSPNOxxx "                                                                                          
+//                + " , a.dTransact "                                                                                          
+//                + " , a.sBranchCd "                                                                                          
+//                + " , q.sBranchNm "                                                                                          
+//                + " , b.sClientID AS  sInqCltID "                                                                            
+//                + " , c.sCompnyNm AS  sInqCltNm "                                                                            
+//                + " , IFNULL(UPPER(CONCAT( IFNULL(CONCAT(dd.sHouseNox,' ') , ''), IFNULL(CONCAT(dd.sAddressx,' ') , ''), "   
+//                + "     	IFNULL(CONCAT(f.sBrgyName,' '), ''),  "                                                             
+//                + "     	IFNULL(CONCAT(e.sTownName, ', '),''), "                                                             
+//                + "     	IFNULL(CONCAT(g.sProvName),'') )), '') AS sInqCtAdd "                                                
+//                + " , h.sCompnyNm AS  sBuyCltNm  "                                                                           
+//                + " , IFNULL(UPPER(CONCAT( IFNULL(CONCAT(ii.sHouseNox,' ') , ''), IFNULL(CONCAT(ii.sAddressx,' ') , ''), "    
+//                + "     	IFNULL(CONCAT(k.sBrgyName,' '), ''),  "                                                             
+//                + "     	IFNULL(CONCAT(j.sTownName, ', '),''), "                                                             
+//                + "     	IFNULL(CONCAT(l.sProvName),'') ))	, '') AS sBuyCtAdd " 					                                   
+//                + " , p.sPlatform AS  sPlatForm  "                                                                          
+//                + " , r.sCompnyNm AS  sSaleExNm  "                                                                          
+//                + " , s.sCompnyNm AS  sSalesAgn  "                                                                          
+//                + " , m.sCSNoxxxx AS sCSNoxxxx 	 "																                                         
+//                + " , n.sPlateNox AS sPlateNox 	 "																                                         
+//                + " , m.sFrameNox AS sFrameNox   "																			                                   
+//                + " , m.sEngineNo AS sEngineNo   "                                                                          
+//                + " , o.sDescript AS sDescript   "                                                                          
+//                + " , t.sTransNox AS sUDRCodex   "                                                                          
+//                + " , t.sReferNox AS sUDRNoxxx   "                                                                          
+//                + " , t.dTransact AS dUDRDatex   "	                                                                         
+//                + " FROM vsp_master a "                                                                                      
+//                + " LEFT JOIN customer_inquiry b ON b.sTransNox = a.sInqryIDx  "                                             
+//                /*inquiring customer*/                                                                                   
+//                + " LEFT JOIN client_master c ON c.sClientID = b.sClientID  "                                                
+//                + " LEFT JOIN client_address d ON d.sClientID = c.sClientID AND d.cPrimaryx = '1' "                           
+//                + " LEFT JOIN addresses dd ON dd.sAddrssID = d.sAddrssID "                                                   
+//                + " LEFT JOIN TownCity e ON e.sTownIDxx = dd.sTownIDxx   "                                                   
+//                + " LEFT JOIN barangay f ON f.sBrgyIDxx = dd.sBrgyIDxx AND f.sTownIDxx = dd.sTownIDxx "                       
+//                + " LEFT JOIN Province g ON g.sProvIDxx = e.sProvIDxx "                                                      
+//                /*buying customer*/                                                                                      
+//                + " LEFT JOIN client_master h ON h.sClientID = a.sClientID "                                                  
+//                + " LEFT JOIN client_address i ON i.sClientID = c.sClientID AND i.cPrimaryx = '1' "                           
+//                + " LEFT JOIN addresses ii ON ii.sAddrssID = d.sAddrssID "                                                    
+//                + " LEFT JOIN TownCity j ON j.sTownIDxx = ii.sTownIDxx   "                                                    
+//                + " LEFT JOIN barangay k ON k.sBrgyIDxx = ii.sBrgyIDxx AND k.sTownIDxx = ii.sTownIDxx "                      
+//                + " LEFT JOIN Province l ON l.sProvIDxx = j.sProvIDxx "                                                       
+//                /*vehicle information*/  								                                                                 
+//                + " LEFT JOIN vehicle_serial m ON m.sSerialID = a.sSerialID "      										                       
+//                + " LEFT JOIN vehicle_serial_registration n ON n.sSerialID = m.sSerialID "                                     
+//                + " LEFT JOIN vehicle_master o ON o.sVhclIDxx = m.sVhclIDxx "                                                 
+//                /*inquiry information*/                                                                                  
+//                + " LEFT JOIN online_platforms p ON p.sTransNox = b.sSourceNo "                                                
+//                + " LEFT JOIN branch q ON q.sBranchCd = a.sBranchCd  "                                                       
+//                + " LEFT JOIN GGC_ISysDBF.Client_Master r ON r.sClientID = b.sEmployID "                                      
+//                + " LEFT JOIN client_master s ON s.sClientID = b.sAgentIDx "                                                  
+//                /*udr information*/                                                                                      
+//                + " INNER JOIN udr_master t ON t.sSourceNo = a.sTransNox AND t.cTranStat <> " + SQLUtil.toSQL(TransactionStatus.STATE_CANCELLED) ;
+//                   
+//    }        
+//    
+//    public JSONObject loadTransactions(){
+//        poJSON = new JSONObject();
+//        try {
+//            
+//            String lsSQL = getSQ_VSPTransaction();
+//            lsSQL = MiscUtil.addCondition(lsSQL, " b.sEmployID = " + SQLUtil.toSQL(poModel.getClientID()))
+//                                                    + " AND a.cTranStat <> " + SQLUtil.toSQL(TransactionStatus.STATE_CANCELLED)
+//                                                    + " GROUP BY a.sTransNox ORDER BY a.dTransact DESC " ;
+//            
+//            System.out.println("VSP : "+ lsSQL);
+//            RowSetFactory factory = RowSetProvider.newFactory();
+//            
+//            ResultSet loRS = poGRider.executeQuery(lsSQL);
+//            try {
+//                poTransactions = factory.createCachedRowSet();
+//                poTransactions.populate(loRS);
+//                MiscUtil.close(loRS);
+//            } catch (SQLException e) {
+//                poJSON.put("result", "error");
+//                poJSON.put("message", e.getMessage());
+//            }
+//            
+//        } catch (SQLException ex) {
+//            Logger.getLogger(Sales_Executive_Master.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return poJSON;
+//    }
+//    
+//    public int getVSPTransCount() throws SQLException{
+//        if (poTransactions != null){
+//            poTransactions.last();
+//            return poTransactions.getRow();
+//        }else{
+//            return 0;
+//        }
+//    }
+//    
+//    public Object getVSPTransDetail(int fnRow, int fnIndex) throws SQLException{
+//        if (fnIndex == 0) return null;
+//        
+//        poTransactions.absolute(fnRow);
+//        return poTransactions.getObject(fnIndex);
+//    }
+//    
+//    public Object getVSPTransDetail(int fnRow, String fsIndex) throws SQLException{
+//        return getVSPTransDetail(fnRow, MiscUtil.getColumnIndex(poTransactions, fsIndex));
+//    }
     
     public JSONObject validateExistingSE(){
         poJSON = new JSONObject();
