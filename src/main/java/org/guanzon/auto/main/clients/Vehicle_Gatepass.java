@@ -12,6 +12,7 @@ import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GTransaction;
 import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Master;
+import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Released_Items;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Labor;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Master;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Parts;
@@ -32,12 +33,16 @@ public class Vehicle_Gatepass implements GTransaction{
     public JSONObject poJSON;
     
     Vehicle_Gatepass_Master poController;
+    Vehicle_Gatepass_Released_Items poVGPItems;
+    
     VehicleSalesProposal_Master poVSPMaster;
     VehicleSalesProposal_Labor poVSPLabor;
     VehicleSalesProposal_Parts poVSPParts;
     
     public Vehicle_Gatepass(GRider foAppDrver, boolean fbWtParent, String fsBranchCd){
         poController = new Vehicle_Gatepass_Master(foAppDrver,fbWtParent,fsBranchCd);
+        poVGPItems = new Vehicle_Gatepass_Released_Items(foAppDrver);
+        
         poVSPMaster =  new VehicleSalesProposal_Master(foAppDrver,fbWtParent,fsBranchCd);
         poVSPLabor = new VehicleSalesProposal_Labor(foAppDrver);
         poVSPParts = new VehicleSalesProposal_Parts(foAppDrver);
@@ -105,6 +110,12 @@ public class Vehicle_Gatepass implements GTransaction{
             pnEditMode = EditMode.UNKNOWN;
         }
         
+        poJSON = checkData(poVGPItems.openDetail(fsValue));
+        if(!"success".equals((String) poJSON.get("result"))){
+            pnEditMode = EditMode.UNKNOWN;
+            return poJSON;
+        }
+        
         if(poController.getMasterModel().getSourceGr() != null){
             if(poController.getMasterModel().getSourceGr().equals("VEHICLE SALES")){
                 poJSON = openVSPDetail(poController.getMasterModel().getSourceCD());
@@ -167,6 +178,14 @@ public class Vehicle_Gatepass implements GTransaction{
             if (!pbWtParent) poGRider.rollbackTrans();
             return checkData(poJSON);
         }
+        
+        poVGPItems.setTargetBranchCd(poController.getMasterModel().getBranchCD());
+        poJSON =  poVGPItems.saveDetail((String) poController.getMasterModel().getTransNo());
+        if("error".equalsIgnoreCase((String)checkData(poJSON).get("result"))){
+            if (!pbWtParent) poGRider.rollbackTrans();
+            return checkData(poJSON);
+        }
+        
         if (!pbWtParent) poGRider.commitTrans();
         
         return poJSON;
@@ -254,6 +273,11 @@ public class Vehicle_Gatepass implements GTransaction{
         return poController;
     }
     
+    public Vehicle_Gatepass_Released_Items getVGPItemModel(){return poVGPItems;} 
+    public ArrayList getVGPItemList(){return poVGPItems.getDetailList();}
+    public Object addVGPItem(){ return poVGPItems.addDetail(poController.getMasterModel().getTransNo());}
+    public Object removeVGPItem(int fnRow){ return poVGPItems.removeDetail(fnRow);}
+    
     public VehicleSalesProposal_Master getVSPModel(){
         return poVSPMaster;
     }
@@ -300,6 +324,9 @@ public class Vehicle_Gatepass implements GTransaction{
             if(!"success".equals(loJSON.get("result"))){
                 return loJSON;
             }
+            
+            //populate Vehicle Gatepass Released Item
+            populateVGPItems();
         } else {
             
         }
@@ -307,5 +334,50 @@ public class Vehicle_Gatepass implements GTransaction{
         return loJSON;
     }
     
+    private JSONObject populateVGPItems(){
+        JSONObject loJSON = new JSONObject();
+        int lnCtr = 0;
+        int lnVGPCtr = 0;
+        boolean lbExist = false;
+        for(lnCtr = 0; lnCtr <= poVSPLabor.getDetailList().size() - 1; lnCtr++){
+            //Check existence
+            for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
+                if(poVGPItems.getDetailModel(lnVGPCtr).getLaborCde().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
+                    lbExist = true;
+                    break;
+                }
+            }
+            if(!lbExist){
+                addVGPItem();
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("l");
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setLaborCde(poVSPLabor.getDetailModel(lnCtr).getLaborCde());
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(1);
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(1);
+            }
+            //set to default
+            lbExist = false;
+        }
+        
+        for(lnCtr = 0; lnCtr <= poVSPParts.getDetailList().size() - 1; lnCtr++){
+            //Check existence
+            for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
+                if(poVGPItems.getDetailModel(lnVGPCtr).getStockID().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
+                    lbExist = true;
+                    break;
+                }
+            }
+            if(!lbExist){
+                addVGPItem();
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("l");
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setStockID(poVSPParts.getDetailModel(lnCtr).getStockID());
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(poVSPParts.getDetailModel(lnCtr).getQuantity());
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(poVSPParts.getDetailModel(lnCtr).getReleased());
+            }
+            //set to default
+            lbExist = false;
+        }
+        
+        return loJSON;
+    }
     
 }
