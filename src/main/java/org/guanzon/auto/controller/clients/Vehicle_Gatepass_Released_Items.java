@@ -160,14 +160,19 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
         
         for (lnCtr = 0; lnCtr <= lnSize; lnCtr++){
             //if(lnCtr>0){
-                if(paDetail.get(lnCtr).getLaborCde().isEmpty() || paDetail.get(lnCtr).getStockID().isEmpty()){
-                    continue; //skip, instead of removing the actual detail
+            if((paDetail.get(lnCtr).getItemType().equals("l") && paDetail.get(lnCtr).getLaborCde().isEmpty())
+                || (paDetail.get(lnCtr).getItemType().equals("p") && paDetail.get(lnCtr).getStockID().isEmpty())){
+                continue;
+            } 
+               
+//                if(paDetail.get(lnCtr).getLaborCde().isEmpty() || paDetail.get(lnCtr).getStockID().isEmpty()){
+//                    continue; //skip, instead of removing the actual detail
 //                    paDetail.remove(lnCtr);
 //                    lnCtr++;
 //                    if(lnCtr > lnSize){
 //                        break;
 //                    } 
-                }
+//                }
             //}
             
             paDetail.get(lnCtr).setTransNo(fsTransNo);

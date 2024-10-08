@@ -3,6 +3,7 @@ org\guanzon\auto\controller\clients\Vehicle_Serial_Master.class
 org\guanzon\auto\controller\clients\Sales_Executive_Master.class
 org\guanzon\auto\controller\clients\Vehicle_Gatepass_Master.class
 org\guanzon\auto\controller\clients\Client_Mobile.class
+org\guanzon\auto\controller\clients\Vehicle_Gatepass_Released_Items.class
 org\guanzon\auto\controller\clients\Client_Social_Media.class
 org\guanzon\auto\controller\clients\Client_Email.class
 org\guanzon\auto\main\clients\Service_Advisor.class

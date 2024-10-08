@@ -368,7 +368,7 @@ public class Vehicle_Gatepass implements GTransaction{
             }
             if(!lbExist){
                 addVGPItem();
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("l");
+                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("p");
                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setStockID(poVSPParts.getDetailModel(lnCtr).getStockID());
                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(poVSPParts.getDetailModel(lnCtr).getQuantity());
                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(poVSPParts.getDetailModel(lnCtr).getReleased());
