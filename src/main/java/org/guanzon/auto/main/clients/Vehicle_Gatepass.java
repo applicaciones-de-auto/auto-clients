@@ -5,10 +5,8 @@
  */
 package org.guanzon.auto.main.clients;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import org.guanzon.appdriver.base.GRider;
-import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GTransaction;
 import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Master;
@@ -124,6 +122,8 @@ public class Vehicle_Gatepass implements GTransaction{
                 }
             }
         }
+        
+        populateVGPItems();
         
         return poJSON;
     }
@@ -339,43 +339,71 @@ public class Vehicle_Gatepass implements GTransaction{
         int lnCtr = 0;
         int lnVGPCtr = 0;
         boolean lbExist = false;
-        for(lnCtr = 0; lnCtr <= poVSPLabor.getDetailList().size() - 1; lnCtr++){
-            //Check existence
-            for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
-                if(poVGPItems.getDetailModel(lnVGPCtr).getLaborCde().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
-                    lbExist = true;
-                    break;
+        
+        if(poController.getMasterModel().getSourceGr().replace(" ", "").toUpperCase().equals("VEHICLESALES")){
+            for(lnCtr = 0; lnCtr <= poVSPLabor.getDetailList().size() - 1; lnCtr++){
+                if(poVSPLabor.getDetailModel(lnCtr).getDSNo() != null){
+                    if(!poVSPLabor.getDetailModel(lnCtr).getDSNo().isEmpty()){
+                        //Check existence
+                        for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
+                            if(poVGPItems.getDetailModel(lnVGPCtr).getLaborCde().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
+                                lbExist = true;
+                                break;
+                            }
+                        }
+                        if(lbExist){
+                            //Set DSNo
+                            poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPLabor.getDetailModel(lnCtr).getDSNo());
+                        } else {
+                            //Add
+                            if(pnEditMode == EditMode.ADDNEW){
+                                addVGPItem();
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("l");
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setLaborCde(poVSPLabor.getDetailModel(lnCtr).getLaborCde());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(1);
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(1);
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setDSNo(poVSPLabor.getDetailModel(lnCtr).getDSNo());
+                            }
+                        }
+                    }
                 }
+                //set to default
+                lbExist = false;
             }
-            if(!lbExist){
-                addVGPItem();
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("l");
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setLaborCde(poVSPLabor.getDetailModel(lnCtr).getLaborCde());
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(1);
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(1);
+
+            for(lnCtr = 0; lnCtr <= poVSPParts.getDetailList().size() - 1; lnCtr++){
+                if(poVSPParts.getDetailModel(lnCtr).getDSNo() != null){
+                    if(!poVSPParts.getDetailModel(lnCtr).getDSNo().isEmpty()){
+                        //Check existence
+                        for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
+                            if(poVGPItems.getDetailModel(lnVGPCtr).getStockID().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
+                                lbExist = true;
+                                break;
+                            }
+                        }
+
+                        if(lbExist){
+                            //Set DSNo
+                            poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPParts.getDetailModel(lnCtr).getDSNo());
+                        } else {
+                            //Add
+                            if(pnEditMode == EditMode.ADDNEW){
+                                addVGPItem();
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("p");
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setStockID(poVSPParts.getDetailModel(lnCtr).getStockID());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(poVSPParts.getDetailModel(lnCtr).getQuantity());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(poVSPParts.getDetailModel(lnCtr).getReleased());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setDSNo(poVSPParts.getDetailModel(lnCtr).getDSNo());
+                            }
+                        }
+                    }
+                }
+                //set to default
+                lbExist = false;
             }
-            //set to default
-            lbExist = false;
         }
         
-        for(lnCtr = 0; lnCtr <= poVSPParts.getDetailList().size() - 1; lnCtr++){
-            //Check existence
-            for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
-                if(poVGPItems.getDetailModel(lnVGPCtr).getStockID().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
-                    lbExist = true;
-                    break;
-                }
-            }
-            if(!lbExist){
-                addVGPItem();
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("p");
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setStockID(poVSPParts.getDetailModel(lnCtr).getStockID());
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(poVSPParts.getDetailModel(lnCtr).getQuantity());
-                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(poVSPParts.getDetailModel(lnCtr).getReleased());
-            }
-            //set to default
-            lbExist = false;
-        }
+        
         
         return loJSON;
     }

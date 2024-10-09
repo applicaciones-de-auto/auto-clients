@@ -13,6 +13,7 @@ org\guanzon\auto\main\clients\Vehicle_Gatepass.class
 org\guanzon\auto\resultSet2XML\clients\VehicleRegistration.class
 org\guanzon\auto\resultSet2XML\clients\ClientAddress.class
 org\guanzon\auto\resultSet2XML\clients\VehicleGatepass.class
+org\guanzon\auto\resultSet2XML\clients\VehicleGatepassReleasedItems.class
 org\guanzon\auto\controller\clients\Client_Address.class
 org\guanzon\auto\controller\clients\Client_Master.class
 org\guanzon\auto\resultSet2XML\clients\Addresses.class
