@@ -208,7 +208,7 @@ public class Vehicle_Gatepass_Master implements GTransaction {
     public JSONObject cancelTransaction(String fsValue) {
         poJSON = new JSONObject();
 
-        if (poModel.getEditMode() == EditMode.UPDATE) {
+        if (poModel.getEditMode() == EditMode.READY || poModel.getEditMode() == EditMode.UPDATE) {
             try {
                 poModel.setTranStat(TransactionStatus.STATE_CANCELLED);
                 

@@ -6,6 +6,7 @@
 package org.guanzon.auto.main.clients;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.iface.GRecord;
@@ -104,7 +105,26 @@ public class Sales_Agent implements GRecord{
         } else {
             pnEditMode = EditMode.UNKNOWN;
         }
+            
+        poJSON = checkData(poController.openVSPDetail());
+        System.out.println("getVSPModelList()"+ getVSPModelList());
+        if(!"success".equals((String) poJSON.get("result"))){
+            pnEditMode = EditMode.UNKNOWN;
+            return poJSON;
+        }
         return poJSON;
+    }
+    
+    private JSONObject checkData(JSONObject joValue){
+        if(pnEditMode == EditMode.ADDNEW ||pnEditMode == EditMode.READY || pnEditMode == EditMode.UPDATE){
+            if(joValue.containsKey("continue")){
+                if(true == (boolean)joValue.get("continue")){
+                    joValue.put("result", "success");
+                    joValue.put("message", "Record saved successfully.");
+                }
+            }
+        }
+        return joValue;
     }
 
     @Override
@@ -150,22 +170,24 @@ public class Sales_Agent implements GRecord{
     public Sales_Agent_Master getModel() {
         return poController;
     }
+    
+    public ArrayList getVSPModelList(){return poController.getDetailList();}
 
-    public JSONObject loadTransaction() {
-        return poController.loadTransactions();
-    }
-    
-    public int getVSPTransCount() throws SQLException{
-        return poController.getVSPTransCount();
-    }
-    
-    public Object getVSPTransDetail(int fnRow, int fnIndex) throws SQLException{
-        return poController.getVSPTransDetail(fnRow, fnIndex);
-    }
-    
-    public Object getVSPTransDetail(int fnRow, String fsIndex) throws SQLException{
-        return poController.getVSPTransDetail(fnRow, fsIndex);
-    }
+//    public JSONObject loadTransaction() {
+//        return poController.loadTransactions();
+//    }
+//    
+//    public int getVSPTransCount() throws SQLException{
+//        return poController.getVSPTransCount();
+//    }
+//    
+//    public Object getVSPTransDetail(int fnRow, int fnIndex) throws SQLException{
+//        return poController.getVSPTransDetail(fnRow, fnIndex);
+//    }
+//    
+//    public Object getVSPTransDetail(int fnRow, String fsIndex) throws SQLException{
+//        return poController.getVSPTransDetail(fnRow, fsIndex);
+//    }
     
     /**
      * Check Existing Referral Agent Record
