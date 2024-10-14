@@ -346,10 +346,16 @@ public class Vehicle_Gatepass implements GTransaction{
                     if(!poVSPLabor.getDetailModel(lnCtr).getDSNo().isEmpty()){
                         //Check existence
                         for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
-                            if(poVGPItems.getDetailModel(lnVGPCtr).getLaborCde().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
-                                lbExist = true;
-                                break;
+                            if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode() != null){
+                                if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
+                                    lbExist = true;
+                                    break;
+                                }
                             }
+//                            if(poVGPItems.getDetailModel(lnVGPCtr).getLaborCde().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
+//                                lbExist = true;
+//                                break;
+//                            }
                         }
                         if(lbExist){
                             //Set DSNo
@@ -359,7 +365,8 @@ public class Vehicle_Gatepass implements GTransaction{
                             if(pnEditMode == EditMode.ADDNEW){
                                 addVGPItem();
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("l");
-                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setLaborCde(poVSPLabor.getDetailModel(lnCtr).getLaborCde());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemCode(poVSPLabor.getDetailModel(lnCtr).getLaborCde());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setLaborDsc(poVSPLabor.getDetailModel(lnCtr).getLaborDsc());
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(1);
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(1);
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setDSNo(poVSPLabor.getDetailModel(lnCtr).getDSNo());
@@ -376,10 +383,18 @@ public class Vehicle_Gatepass implements GTransaction{
                     if(!poVSPParts.getDetailModel(lnCtr).getDSNo().isEmpty()){
                         //Check existence
                         for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
-                            if(poVGPItems.getDetailModel(lnVGPCtr).getStockID().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
-                                lbExist = true;
-                                break;
+                            if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode() != null){
+                                if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
+                                    lbExist = true;
+                                    break;
+                                }
                             }
+//                            if(poVGPItems.getDetailModel(lnVGPCtr).getStockID() != null){
+//                                if(poVGPItems.getDetailModel(lnVGPCtr).getStockID().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
+//                                    lbExist = true;
+//                                    break;
+//                                }
+//                            }
                         }
 
                         if(lbExist){
@@ -390,7 +405,8 @@ public class Vehicle_Gatepass implements GTransaction{
                             if(pnEditMode == EditMode.ADDNEW){
                                 addVGPItem();
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemType("p");
-                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setStockID(poVSPParts.getDetailModel(lnCtr).getStockID());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setItemCode(poVSPParts.getDetailModel(lnCtr).getStockID());
+                                poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setStockDsc(poVSPParts.getDetailModel(lnCtr).getDescript());
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setQuantity(poVSPParts.getDetailModel(lnCtr).getQuantity());
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setReleased(poVSPParts.getDetailModel(lnCtr).getReleased());
                                 poVGPItems.getDetailModel(poVGPItems.getDetailList().size()-1).setDSNo(poVSPParts.getDetailModel(lnCtr).getDSNo());
@@ -402,8 +418,6 @@ public class Vehicle_Gatepass implements GTransaction{
                 lbExist = false;
             }
         }
-        
-        
         
         return loJSON;
     }
