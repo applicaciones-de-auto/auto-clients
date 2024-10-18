@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
+import org.guanzon.appdriver.base.SQLUtil;
+import org.guanzon.appdriver.constant.TransactionStatus;
 
 /**
  *
@@ -59,7 +61,9 @@ public class SalesAgent {
                         + " IFNULL(CONCAT(g.sAddressx,' ') , ''),  "                                                                 
                         + " IFNULL(CONCAT(i.sBrgyName,' '), ''),   "                                                                 
                         + " IFNULL(CONCAT(h.sTownName, ', '),''),  "                                                                 
-                        + " IFNULL(CONCAT(j.sProvName),'') )	, '') AS sAddressx  "                                                  
+                        + " IFNULL(CONCAT(j.sProvName),'') )	, '') AS sAddressx  "                                                                                 
+                        + " , DATE(k.dApproved) AS dApprovex "                                                                           
+                        + " , l.sCompnyNm AS sApprover "                                                   
                         + " FROM sales_agent a   "                                                                                   
                         + " LEFT JOIN client_master b ON b.sClientID = a.sClientID "                                                 
         //                + " LEFT JOIN client_mobile c ON c.sClientID = a.sClientID AND c.cPrimaryx = 1 AND c.cRecdStat = 1  "        
@@ -70,6 +74,8 @@ public class SalesAgent {
                         + " LEFT JOIN TownCity h ON h.sTownIDxx = g.sTownIDxx  "                                                     
                         + " LEFT JOIN barangay i ON i.sBrgyIDxx = g.sBrgyIDxx AND i.sTownIDxx = g.sTownIDxx  "                       
                         + " LEFT JOIN Province j ON j.sProvIDxx = h.sProvIDxx  "
+                        + " LEFT JOIN transaction_status_history k ON k.sSourceNo = a.sClientID AND k.cTranStat <> "+ SQLUtil.toSQL(TransactionStatus.STATE_CANCELLED)
+                        + " LEFT JOIN ggc_isysdbf.client_master l ON l.sClientID = k.sApproved " 
                         + " WHERE 0=1";
         
         System.out.println(lsSQL);

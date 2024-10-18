@@ -479,20 +479,23 @@ public class Sales_Agent_Master  implements GRecord {
     public JSONObject approveRecord(){
         JSONObject loJSON = new JSONObject();
         TransactionStatusHistory loEntity = new TransactionStatusHistory(poGRider);
-        loJSON = loEntity.newTransaction();
+        //Update to cancel all previous approvements
+        loJSON = loEntity.cancelTransaction(poModel.getClientID());
         if(!"error".equals((String) loJSON.get("result"))){
-            loEntity.getMasterModel().setApproved(poGRider.getUserID());
-            loEntity.getMasterModel().setApprovedDte(poGRider.getServerDate());
-            loEntity.getMasterModel().setSourceNo(poModel.getClientID());
-            loEntity.getMasterModel().setTableNme(poModel.getTable());
-            loEntity.getMasterModel().setRefrStat(poModel.getRecdStat());
-            loEntity.getMasterModel().setPayload(loJSON);
+            loJSON = loEntity.newTransaction();
+            if(!"error".equals((String) loJSON.get("result"))){
+                loEntity.getMasterModel().setApproved(poGRider.getUserID());
+                loEntity.getMasterModel().setApprovedDte(poGRider.getServerDate());
+                loEntity.getMasterModel().setSourceNo(poModel.getClientID());
+                loEntity.getMasterModel().setTableNme(poModel.getTable());
+                loEntity.getMasterModel().setRefrStat(poModel.getRecdStat());
+//                loEntity.getMasterModel().setPayload(loJSON.toJSONString());
 
-            loJSON = loEntity.saveTransaction();
-            if("error".equals((String) loJSON.get("result"))){
-                return loJSON;
+                loJSON = loEntity.saveTransaction();
+                if("error".equals((String) loJSON.get("result"))){
+                    return loJSON;
+                } 
             }
-
         }
         
         return loJSON;

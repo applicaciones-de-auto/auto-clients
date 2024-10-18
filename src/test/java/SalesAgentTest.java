@@ -118,7 +118,7 @@ public class SalesAgentTest {
 //        System.out.println("------------------------------RETRIEVAL--------------------------------------");
 //        System.out.println("--------------------------------------------------------------------");
 //        
-//        json = model.openRecord("M00124000001");
+//        json = model.openRecord("M00124000014");
 //        
 //        if (!"success".equals((String) json.get("result"))){
 //            result = false;
@@ -136,9 +136,9 @@ public class SalesAgentTest {
 //            System.out.println("sMiddName  :  " + model.getMaster("sMiddName"));
 //            System.out.println("sCompnyNm  :  " + model.getMaster("sCompnyNm"));
 //            System.out.println("cClientTp  :  " + model.getMaster("cClientTp"));
-//            System.out.println("sMobileNo  :  " + model.getMaster("sMobileNo"));
-//            System.out.println("sAccountx  :  " + model.getMaster("sAccountx"));
-//            System.out.println("sEmailAdd  :  " + model.getMaster("sEmailAdd"));
+////            System.out.println("sMobileNo  :  " + model.getMaster("sMobileNo"));
+////            System.out.println("sAccountx  :  " + model.getMaster("sAccountx"));
+////            System.out.println("sEmailAdd  :  " + model.getMaster("sEmailAdd"));
 //            System.out.println("sAddressx  :  " + model.getMaster("sAddressx"));
 //            
 //            result = true;
@@ -219,7 +219,7 @@ public class SalesAgentTest {
 //        System.out.println("------------------------------ACTIVATE RECORD--------------------------------------");
 //        System.out.println("--------------------------------------------------------------------");
 //        
-//        json = model.activateRecord("M00124000001");
+//        json = model.activateRecord("M00124000014");
 //        System.err.println((String) json.get("message"));
 //        
 //        if (!"success".equals((String) json.get("result"))){

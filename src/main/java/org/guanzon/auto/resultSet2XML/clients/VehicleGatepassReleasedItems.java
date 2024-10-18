@@ -48,7 +48,7 @@ public class VehicleGatepassReleasedItems {
                         + "  , a.nReleased "                                     
                         + "  , b.sLaborDsc "                                     
                         + "  , c.sDescript AS sStockDsc "                         
-                        + "  , '' AS sDSNoxxxx "                                  
+                        + "  , 'xxxxxxxxxxxx' AS sDSNoxxxx "                                  
                         + " FROM vehicle_released_items a "                      
                         + " LEFT JOIN labor b ON b.sLaborCde = a.sItemCode "     
                         + " LEFT JOIN inventory c ON c.sStockIDx = a.sItemCode "

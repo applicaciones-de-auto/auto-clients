@@ -348,6 +348,7 @@ public class Vehicle_Gatepass implements GTransaction{
                         for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
                             if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode() != null){
                                 if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
+                                    poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPLabor.getDetailModel(lnCtr).getDSNo());
                                     lbExist = true;
                                     break;
                                 }
@@ -357,10 +358,7 @@ public class Vehicle_Gatepass implements GTransaction{
 //                                break;
 //                            }
                         }
-                        if(lbExist){
-                            //Set DSNo
-                            poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPLabor.getDetailModel(lnCtr).getDSNo());
-                        } else {
+                        if(!lbExist){
                             //Add
                             if(pnEditMode == EditMode.ADDNEW){
                                 addVGPItem();
@@ -385,6 +383,7 @@ public class Vehicle_Gatepass implements GTransaction{
                         for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
                             if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode() != null){
                                 if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
+                                    poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPParts.getDetailModel(lnCtr).getDSNo()); //set DSNo
                                     lbExist = true;
                                     break;
                                 }
@@ -397,10 +396,7 @@ public class Vehicle_Gatepass implements GTransaction{
 //                            }
                         }
 
-                        if(lbExist){
-                            //Set DSNo
-                            poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPParts.getDetailModel(lnCtr).getDSNo());
-                        } else {
+                        if(!lbExist){
                             //Add
                             if(pnEditMode == EditMode.ADDNEW){
                                 addVGPItem();
