@@ -5,6 +5,7 @@
  */
 package org.guanzon.auto.main.clients;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.constant.EditMode;
@@ -316,9 +317,53 @@ public class Vehicle_Gatepass implements GTransaction{
                 }
             }
             
+            /*
+            REQUIRE DI AND SI UPON RELEASING FOR FINANCING
+            cPayModex	2	BANK FINANCING
+            cPayModex	4	COMPANY FINANCING
+            
+            REQUIRE DI ONLY UPON RELEASE FOR PURCHASE ORDER 
+            cPayModex	1	BANK PURCHASE ORDER
+            cPayModex	3	COMPANY PURCHASE ORDER
+            */
+            
+            if(((String) loJSON.get("cPayModex")).equals("2") || ((String) loJSON.get("cPayModex")).equals("4")){
+                if(Double.valueOf((String) loJSON.get("nSlsInRte")) <= 0.00){
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "Please set Sales Executive Incentives rate for VSP No. "+(String) loJSON.get("sVSPNOxxx")+"."
+                                            + "\n\nLinking aborted.");
+                    return loJSON;
+                }
+                
+                if(new BigDecimal((String) loJSON.get("nSlsInAmt")).compareTo(new BigDecimal(0.00)) > 0){
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "Please set SI Incentives amount for VSP No. "+(String) loJSON.get("sVSPNOxxx")+"."
+                                            + "\n\nLinking aborted.");
+                    return loJSON;
+                }
+            }
+            
+            if(!((String) loJSON.get("cPayModex")).equals("0")){
+                if(Double.valueOf((String) loJSON.get("nDealrRte")) <= 0.00){
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "Please set Dealer Incentives rate for VSP No. "+(String) loJSON.get("sVSPNOxxx")+"."
+                                            + "\n\nLinking aborted.");
+                    return loJSON;
+                }
+                
+                if(new BigDecimal((String) loJSON.get("nDealrAmt")).compareTo(new BigDecimal(0.00)) > 0){
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "Please set Dealer Incentives amount for VSP No. "+(String) loJSON.get("sVSPNOxxx")+"."
+                                            + "\n\nLinking aborted.");
+                    return loJSON;
+                }
+            
+            }
+            
             poController.getMasterModel().setSourceCD((String) loJSON.get("sTransNox"));
             poController.getMasterModel().setSourceNo((String) loJSON.get("sVSPNOxxx"));
             poController.getMasterModel().setSourceGr("VEHICLE SALES");
+            
             
             loJSON = openVSPDetail((String) loJSON.get("sTransNox"));
             if(!"success".equals(loJSON.get("result"))){
