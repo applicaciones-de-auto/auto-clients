@@ -171,7 +171,7 @@ public class Sales_Agent implements GRecord{
         return poController;
     }
     
-    public ArrayList getVSPModelList(){return poController.getDetailList();}
+    public ArrayList getVSPModelList(){return poController.getVSPDetailList();}
 
 //    public JSONObject loadTransaction() {
 //        return poController.loadTransactions();
@@ -196,6 +196,5 @@ public class Sales_Agent implements GRecord{
     public JSONObject validateExistingRA(){
         return poController.validateExistingRA();
     }
-    
     
 }

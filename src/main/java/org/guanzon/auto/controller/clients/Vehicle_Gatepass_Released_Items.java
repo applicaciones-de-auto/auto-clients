@@ -97,16 +97,17 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
             if (MiscUtil.RecordCount(loRS) > 0) {
                 while(loRS.next()){
                         paDetail.add(new Model_Vehicle_Gatepass_Released_Items(poGRider));
-                        switch(loRS.getString("sItemType")){
-                            case "l":
-                                paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sLaborCde"));
-                            break;
-                            case "p":
-                                paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sStockIDx"));
-                            break;
-                            case "d":
-                            break;
-                        }
+                        paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sItemCode"));
+//                        switch(loRS.getString("sItemType")){
+//                            case "l":
+//                                paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sLaborCde"));
+//                            break;
+//                            case "p":
+//                                paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sStockIDx"));
+//                            break;
+//                            case "d":
+//                            break;
+//                        }
                         
                         pnEditMode = EditMode.UPDATE;
                         lnctr++;
@@ -160,10 +161,13 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
         
         for (lnCtr = 0; lnCtr <= lnSize; lnCtr++){
             //if(lnCtr>0){
-            if((paDetail.get(lnCtr).getItemType().equals("l") && paDetail.get(lnCtr).getLaborCde().isEmpty())
-                || (paDetail.get(lnCtr).getItemType().equals("p") && paDetail.get(lnCtr).getStockID().isEmpty())){
+            if(paDetail.get(lnCtr).getItemCode().isEmpty()){
                 continue;
             } 
+//            if((paDetail.get(lnCtr).getItemType().equals("l") && paDetail.get(lnCtr).getLaborCde().isEmpty())
+//                || (paDetail.get(lnCtr).getItemType().equals("p") && paDetail.get(lnCtr).getStockID().isEmpty())){
+//                continue;
+//            } 
                
 //                if(paDetail.get(lnCtr).getLaborCde().isEmpty() || paDetail.get(lnCtr).getStockID().isEmpty()){
 //                    continue; //skip, instead of removing the actual detail
@@ -217,12 +221,12 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
         poJSON = new JSONObject();
         if (paRemDetail.size()<=0){
             paRemDetail.add(new Model_Vehicle_Gatepass_Released_Items(poGRider));
-            paRemDetail.get(0).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getLaborCde());
+            paRemDetail.get(0).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getItemCode());
             poJSON.put("result", "success");
             poJSON.put("message", "added to remove record.");
         } else {
             paRemDetail.add(new Model_Vehicle_Gatepass_Released_Items(poGRider));
-            paRemDetail.get(paRemDetail.size()-1).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getLaborCde());
+            paRemDetail.get(paRemDetail.size()-1).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getItemCode());
             poJSON.put("result", "success");
             poJSON.put("message", "added to remove record.");
         }
@@ -345,41 +349,5 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    
-    public JSONObject searchLabor(String fsValue) {
-        poJSON = new JSONObject();
-        String lsHeader = "ID»Description";
-        String lsColName = "sLaborCde»sLaborDsc"; 
-        String lsCriteria = "sLaborCde»sLaborDsc";
-        
-        String lsSQL =   " SELECT "                                             
-                + "   sLaborCde "                                      
-                + " , sLaborDsc "                                      
-                + " , cRecdStat "                                      
-                + " FROM labor " ; 
-        
-        lsSQL = MiscUtil.addCondition(lsSQL,  " cRecdStat = '1' "
-                                            + " AND sLaborDsc LIKE " + SQLUtil.toSQL(fsValue + "%"));
-        
-        
-        System.out.println("SEARCH LABOR: " + lsSQL);
-        poJSON = ShowDialogFX.Search(poGRider,
-                lsSQL,
-                fsValue,
-                    lsHeader,
-                    lsColName,
-                    lsCriteria,
-                1);
-
-        if (poJSON != null) {
-        } else {
-            poJSON = new JSONObject();
-            poJSON.put("result", "error");
-            poJSON.put("message", "No record loaded.");
-            return poJSON;
-        }
-        
-        return poJSON;
-    }
     
 }

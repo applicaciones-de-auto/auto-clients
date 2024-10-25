@@ -21,6 +21,7 @@ import org.guanzon.appdriver.constant.EditMode;
 import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GRecord;
 import org.guanzon.auto.general.CancelForm;
+import org.guanzon.auto.general.TransactionStatusHistory;
 import org.guanzon.auto.model.clients.Model_Sales_Agent;
 import org.guanzon.auto.model.sales.Model_VehicleSalesProposal_Master;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
@@ -41,7 +42,8 @@ public class Sales_Agent_Master  implements GRecord {
     String psRecdStat;
 
     Model_Sales_Agent poModel;
-    ArrayList<Model_VehicleSalesProposal_Master> paDetail;
+    ArrayList<Model_Sales_Agent> paDetail;
+    ArrayList<Model_VehicleSalesProposal_Master> paVSPDetail;
 ////    CachedRowSet poTransactions;
     JSONObject poJSON;
 
@@ -151,7 +153,7 @@ public class Sales_Agent_Master  implements GRecord {
         if("error".equalsIgnoreCase((String)checkData(poJSON).get("result"))){
             if (!pbWthParent) poGRider.rollbackTrans();
             return checkData(poJSON);
-        }
+        } 
         
         return poJSON;
     }
@@ -210,8 +212,12 @@ public class Sales_Agent_Master  implements GRecord {
             
             poJSON = poModel.saveRecord();
             if ("success".equals((String) poJSON.get("result"))) {
-                poJSON.put("result", "success");
-                poJSON.put("message", "Approve success.");
+                poJSON = approveRecord();
+                if(!"error".equals((String) poJSON.get("result"))){
+                    poJSON.put("result", "success");
+                    poJSON.put("message", "Approve success.");
+                }
+                
             } else {
                 poJSON.put("result", "error");
                 poJSON.put("message", "Approve failed.");
@@ -273,7 +279,7 @@ public class Sales_Agent_Master  implements GRecord {
     }
     
     public JSONObject openVSPDetail(){
-        paDetail = new ArrayList<>();
+        paVSPDetail = new ArrayList<>();
         poJSON = new JSONObject();
         Model_VehicleSalesProposal_Master loEntity = new Model_VehicleSalesProposal_Master(poGRider);
         String lsSQL =  loEntity.getSQL();
@@ -288,8 +294,8 @@ public class Sales_Agent_Master  implements GRecord {
             int lnctr = 0;
             if (MiscUtil.RecordCount(loRS) > 0) {
                 while(loRS.next()){
-                        paDetail.add(new Model_VehicleSalesProposal_Master(poGRider));
-                        paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"));
+                        paVSPDetail.add(new Model_VehicleSalesProposal_Master(poGRider));
+                        paVSPDetail.get(paVSPDetail.size() - 1).openRecord(loRS.getString("sTransNox"));
                         
                         pnEditMode = EditMode.UPDATE;
                         lnctr++;
@@ -298,7 +304,7 @@ public class Sales_Agent_Master  implements GRecord {
                     } 
                 
             }else{
-//                paDetail = new ArrayList<>();
+//                paVSPDetail = new ArrayList<>();
 //                addDetail(fsValue);
                 poJSON.put("result", "error");
                 poJSON.put("continue", true);
@@ -313,14 +319,14 @@ public class Sales_Agent_Master  implements GRecord {
     }
      
     public Model_VehicleSalesProposal_Master getVSPModel(int fnRow) {
-        return paDetail.get(fnRow);
+        return paVSPDetail.get(fnRow);
     }
         
-    public ArrayList<Model_VehicleSalesProposal_Master> getDetailList(){
-        if(paDetail == null){
-           paDetail = new ArrayList<>();
+    public ArrayList<Model_VehicleSalesProposal_Master> getVSPDetailList(){
+        if(paVSPDetail == null){
+           paVSPDetail = new ArrayList<>();
         }
-        return paDetail;
+        return paVSPDetail;
     }
     
 //    private String getSQ_VSPTransaction(){
@@ -470,4 +476,28 @@ public class Sales_Agent_Master  implements GRecord {
         return poJSON;
     }
     
+    public JSONObject approveRecord(){
+        JSONObject loJSON = new JSONObject();
+        TransactionStatusHistory loEntity = new TransactionStatusHistory(poGRider);
+        //Update to cancel all previous approvements
+        loJSON = loEntity.cancelTransaction(poModel.getClientID());
+        if(!"error".equals((String) loJSON.get("result"))){
+            loJSON = loEntity.newTransaction();
+            if(!"error".equals((String) loJSON.get("result"))){
+                loEntity.getMasterModel().setApproved(poGRider.getUserID());
+                loEntity.getMasterModel().setApprovedDte(poGRider.getServerDate());
+                loEntity.getMasterModel().setSourceNo(poModel.getClientID());
+                loEntity.getMasterModel().setTableNme(poModel.getTable());
+                loEntity.getMasterModel().setRefrStat(poModel.getRecdStat());
+//                loEntity.getMasterModel().setPayload(loJSON.toJSONString());
+
+                loJSON = loEntity.saveTransaction();
+                if("error".equals((String) loJSON.get("result"))){
+                    return loJSON;
+                } 
+            }
+        }
+        
+        return loJSON;
+    }
 }

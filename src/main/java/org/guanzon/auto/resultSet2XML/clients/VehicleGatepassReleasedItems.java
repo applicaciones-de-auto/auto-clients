@@ -38,19 +38,20 @@ public class VehicleGatepassReleasedItems {
         System.out.println("Connected");
         
         System.setProperty("sys.default.path.metadata", "D:/GGC_Maven_Systems/config/metadata/Model_Vehicle_Gatepass_Released_Items.xml");
-        String lsSQL =    " SELECT "                                             
+        String lsSQL =   " SELECT "                                             
                         + "    a.sTransNox "                                     
                         + "  , a.sItemType "                                     
-                        + "  , a.sLaborCde "                                     
-                        + "  , a.sStockIDx "                                     
+                        + "  , a.sItemCode "                                     
+        //                + "  , a.sLaborCde "                                     
+        //                + "  , a.sStockIDx "                                     
                         + "  , a.nQuantity "                                     
                         + "  , a.nReleased "                                     
                         + "  , b.sLaborDsc "                                     
                         + "  , c.sDescript AS sStockDsc "                         
-                        + "  , 'xxxxxxxxxxxx' AS sDSNoxxxx "                                  
+                        + "  , 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' AS sDSNoxxxx "          //Can be multiple Job Order                        
                         + " FROM vehicle_released_items a "                      
-                        + " LEFT JOIN labor b ON b.sLaborCde = a.sLaborCde "     
-                        + " LEFT JOIN inventory c ON c.sStockIDx = a.sStockIDx " 
+                        + " LEFT JOIN labor b ON b.sLaborCde = a.sItemCode "     
+                        + " LEFT JOIN inventory c ON c.sStockIDx = a.sItemCode "
                         + " WHERE 0=1";
         
         System.out.println(lsSQL);
