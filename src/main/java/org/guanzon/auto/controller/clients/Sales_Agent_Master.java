@@ -18,6 +18,7 @@ import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
+import org.guanzon.appdriver.constant.RecordStatus;
 import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GRecord;
 import org.guanzon.auto.general.CancelForm;
@@ -480,7 +481,7 @@ public class Sales_Agent_Master  implements GRecord {
         JSONObject loJSON = new JSONObject();
         TransactionStatusHistory loEntity = new TransactionStatusHistory(poGRider);
         //Update to cancel all previous approvements
-        loJSON = loEntity.cancelTransaction(poModel.getClientID());
+        loJSON = loEntity.cancelTransaction(poModel.getClientID(), RecordStatus.ACTIVE);
         if(!"error".equals((String) loJSON.get("result"))){
             loJSON = loEntity.newTransaction();
             if(!"error".equals((String) loJSON.get("result"))){
