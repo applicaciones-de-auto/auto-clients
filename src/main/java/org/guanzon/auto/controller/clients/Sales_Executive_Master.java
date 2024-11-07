@@ -175,7 +175,8 @@ public class Sales_Executive_Master implements GRecord {
                 }
                 
                 CancelForm cancelform = new CancelForm();
-                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(), "SALES EXECUTIVE")) {
+//                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(), "SALES EXECUTIVE")) {
+                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getTable())) {
                     poJSON.put("result", "error");
                     poJSON.put("message", "Deactivation failed.");
                     return poJSON;
