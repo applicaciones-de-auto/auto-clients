@@ -325,37 +325,37 @@ public class Sales_Executive_Master implements GRecord {
                 fbByCode ? 0 : 1);
         
         if (poJSON != null) {
-            if("error".equals((String) poJSON.get("result"))){
-                poModel.setClientID("");
-                poModel.setCompnyNm("");
-                poModel.setClientTp("");
-                poModel.setFrstName("");
-                poModel.setMiddName("");
-                poModel.setLastName("");
-                poModel.setMobileNo("");
-                poModel.setEmailAdd("");
-                poModel.setAddress("");
-            } else {
-                poModel.setClientID((String) poJSON.get("sClientID"));
-                poModel.setCompnyNm((String) poJSON.get("sCompnyNm"));
-                poModel.setClientTp((String) poJSON.get("cClientTp"));
-                poModel.setFrstName((String) poJSON.get("sFrstName"));
-                poModel.setMiddName((String) poJSON.get("sMiddName"));
-                poModel.setLastName((String) poJSON.get("sLastName"));
-                poModel.setMobileNo((String) poJSON.get("sMobileNo"));
-                poModel.setEmailAdd((String) poJSON.get("sEmailAdd"));
-                poModel.setAddress((String) poJSON.get("sAddressx"));
-            }
+//            if("error".equals((String) poJSON.get("result"))){
+//                poModel.setClientID("");
+//                poModel.setCompnyNm("");
+//                poModel.setClientTp("");
+//                poModel.setFrstName("");
+//                poModel.setMiddName("");
+//                poModel.setLastName("");
+//                poModel.setMobileNo("");
+//                poModel.setEmailAdd("");
+//                poModel.setAddress("");
+//            } else {
+//                poModel.setClientID((String) poJSON.get("sClientID"));
+//                poModel.setCompnyNm((String) poJSON.get("sCompnyNm"));
+//                poModel.setClientTp((String) poJSON.get("cClientTp"));
+//                poModel.setFrstName((String) poJSON.get("sFrstName"));
+//                poModel.setMiddName((String) poJSON.get("sMiddName"));
+//                poModel.setLastName((String) poJSON.get("sLastName"));
+//                poModel.setMobileNo((String) poJSON.get("sMobileNo"));
+//                poModel.setEmailAdd((String) poJSON.get("sEmailAdd"));
+//                poModel.setAddress((String) poJSON.get("sAddressx"));
+//            }
         } else {
-            poModel.setClientID("");
-            poModel.setCompnyNm("");
-            poModel.setClientTp("");
-            poModel.setFrstName("");
-            poModel.setMiddName("");
-            poModel.setLastName("");
-            poModel.setMobileNo("");
-            poModel.setEmailAdd("");
-            poModel.setAddress("");
+//            poModel.setClientID("");
+//            poModel.setCompnyNm("");
+//            poModel.setClientTp("");
+//            poModel.setFrstName("");
+//            poModel.setMiddName("");
+//            poModel.setLastName("");
+//            poModel.setMobileNo("");
+//            poModel.setEmailAdd("");
+//            poModel.setAddress("");
             poJSON = new JSONObject();
             poJSON.put("result", "error");
             poJSON.put("message", "No record loaded.");
