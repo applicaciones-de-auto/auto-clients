@@ -21,6 +21,7 @@ import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GTransaction;
 import org.guanzon.auto.general.CancelForm;
 import org.guanzon.auto.general.SearchDialog;
+import org.guanzon.auto.general.TransactionStatusHistory;
 import org.guanzon.auto.model.clients.Model_Vehicle_Gatepass;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
 import org.guanzon.auto.validator.clients.ValidatorInterface;
@@ -182,6 +183,20 @@ public class Vehicle_Gatepass_Master implements GTransaction {
         } 
         
         return poJSON;
+    }
+    
+    public JSONObject savePrinted(){
+        JSONObject loJSON = new JSONObject();
+        poModel.setPrinted("1"); //Set to Printed
+        loJSON = saveTransaction();
+        if(!"error".equals((String) loJSON.get("result"))){
+            TransactionStatusHistory loEntity = new TransactionStatusHistory(poGRider);
+            loJSON = loEntity.updateStatusHistory(poModel.getTransNo(), poModel.getTable(), "VGP PRINT", "5"); //5 = STATE_PRINTED
+            if("error".equals((String) loJSON.get("result"))){
+                return loJSON;
+            }
+        }
+        return loJSON;
     }
     
     @Override
