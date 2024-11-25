@@ -202,10 +202,9 @@ public class Vehicle_Gatepass implements GTransaction{
         return poJSON;
     }
     
-    public JSONObject savePrint() {
-        return poController.savePrinted();
+    public JSONObject savePrint(boolean fsIsValidate) {
+        return poController.savePrinted(fsIsValidate);
     }
-    
     
     private JSONObject checkData(JSONObject joValue){
         if(pnEditMode == EditMode.ADDNEW ||pnEditMode == EditMode.READY || pnEditMode == EditMode.UPDATE){
