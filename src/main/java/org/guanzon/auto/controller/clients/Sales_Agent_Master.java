@@ -481,7 +481,7 @@ public class Sales_Agent_Master  implements GRecord {
     public JSONObject approveRecord(){
         JSONObject loJSON = new JSONObject();
         TransactionStatusHistory loEntity = new TransactionStatusHistory(poGRider);
-        loJSON = loEntity.updateStatusHistory(poModel.getClientID(), poModel.getTable(), "", RecordStatus.ACTIVE);
+        loJSON = loEntity.updateStatusHistory(poModel.getClientID(), poModel.getTable(), "SALES AGENT", RecordStatus.ACTIVE, "APPROVED");
         if("error".equals((String) loJSON.get("result"))){
             return loJSON;
         }
