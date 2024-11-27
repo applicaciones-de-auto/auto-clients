@@ -18,6 +18,7 @@ import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
+import org.guanzon.appdriver.constant.RecordStatus;
 import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GRecord;
 import org.guanzon.auto.general.CancelForm;
@@ -175,6 +176,7 @@ public class Sales_Executive_Master implements GRecord {
                 }
                 
                 CancelForm cancelform = new CancelForm();
+                cancelform.setAction(RecordStatus.INACTIVE, "DEACTIVATE");
 //                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(), "SALES EXECUTIVE")) {
                 if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getTable())) {
                     poJSON.put("result", "error");
