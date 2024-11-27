@@ -176,7 +176,7 @@ public class Sales_Agent_Master  implements GRecord {
                 }
                 
                 CancelForm cancelform = new CancelForm();
-                cancelform.setAction(RecordStatus.INACTIVE, "DISAPPROVE");
+                cancelform.setAction(RecordStatus.INACTIVE, "DISAPPROVED");
 //                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(),"REFERRAL AGENT")) { 
                 if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getTable())) { 
                     poJSON.put("result", "error");

@@ -330,6 +330,7 @@ public class Client_Master implements GRecord{
                             ", a.sMiddName" + 
                             ", a.sSuffixNm" + 
                             ", a.cClientTp" +  
+                            ", a.sTaxIDNox" +  
                             " FROM Client_Master a" + 
                             " LEFT JOIN Client_Address b ON a.sClientID = b.sClientID AND b.cPrimaryx = '1'" + 
                             " LEFT JOIN Addresses bb ON bb.sAddrssID = b.sAddrssID" + 
