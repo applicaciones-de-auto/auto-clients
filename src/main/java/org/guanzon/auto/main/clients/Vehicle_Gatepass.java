@@ -19,6 +19,7 @@ import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GTransaction;
 import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Master;
 import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Released_Items;
+import org.guanzon.auto.controller.parameter.Default_Released_Items_Checklist;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Labor;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Master;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Parts;
@@ -43,6 +44,7 @@ public class Vehicle_Gatepass implements GTransaction{
     
     Vehicle_Gatepass_Master poController;
     Vehicle_Gatepass_Released_Items poVGPItems;
+    Default_Released_Items_Checklist poDefltItems;
     
     VehicleSalesProposal_Master poVSPMaster;
     VehicleSalesProposal_Labor poVSPLabor;
@@ -51,6 +53,7 @@ public class Vehicle_Gatepass implements GTransaction{
     public Vehicle_Gatepass(GRider foAppDrver, boolean fbWtParent, String fsBranchCd){
         poController = new Vehicle_Gatepass_Master(foAppDrver,fbWtParent,fsBranchCd);
         poVGPItems = new Vehicle_Gatepass_Released_Items(foAppDrver);
+        poDefltItems = new Default_Released_Items_Checklist(foAppDrver,fbWtParent,fsBranchCd);
         
         poVSPMaster =  new VehicleSalesProposal_Master(foAppDrver,fbWtParent,fsBranchCd);
         poVSPLabor = new VehicleSalesProposal_Labor(foAppDrver);
@@ -501,4 +504,10 @@ public class Vehicle_Gatepass implements GTransaction{
         return loJSON;
     }
     
+    public Default_Released_Items_Checklist getDefaultItemModel(){ return poDefltItems;}
+    public ArrayList getDefaultItemList(){return poDefltItems.getDetailList();}
+    
+    public JSONObject loadDefaultItem(){
+        return poDefltItems.loadDefaultItem();
+    }
 }
