@@ -48,10 +48,12 @@ public class VehicleGatepassReleasedItems {
                         + "  , a.nReleased "                                     
                         + "  , b.sLaborDsc "                                     
                         + "  , c.sDescript AS sStockDsc "                         
-                        + "  , 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' AS sDSNoxxxx "          //Can be multiple Job Order                        
+                        + "  , 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' AS sDSNoxxxx "          //Can be multiple Job Order                     
+                        + "  , d.sItemDesc AS sDefltDsc "                       
                         + " FROM vehicle_released_items a "                      
-                        + " LEFT JOIN labor b ON b.sLaborCde = a.sItemCode "     
-                        + " LEFT JOIN inventory c ON c.sStockIDx = a.sItemCode "
+                        + " LEFT JOIN labor b ON b.sLaborCde = a.sItemCode AND a.sItemType = 'l' "     
+                        + " LEFT JOIN inventory c ON c.sStockIDx = a.sItemCode AND a.sItemType = 'p' " 
+                        + " LEFT JOIN default_released_items_checklist d ON d.sItemCode = a.sItemCode AND a.sItemType = 'd' " 
                         + " WHERE 0=1";
         
         System.out.println(lsSQL);

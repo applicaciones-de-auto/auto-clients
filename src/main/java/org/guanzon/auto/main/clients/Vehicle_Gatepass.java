@@ -184,6 +184,11 @@ public class Vehicle_Gatepass implements GTransaction{
     public JSONObject saveTransaction() {
         poJSON = new JSONObject();  
         
+        poJSON = validateEntry();
+        if("error".equals((String) poJSON.get("result"))){
+            return poJSON;
+        }
+        
         if (!pbWtParent) poGRider.beginTrans();
         
 //        poController.setTargetBranchCd(poController.getMasterModel().getBranchCD());
@@ -433,7 +438,8 @@ public class Vehicle_Gatepass implements GTransaction{
                         //Check existence
                         for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
                             if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode() != null){
-                                if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())){
+                                if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPLabor.getDetailModel(lnCtr).getLaborCde())
+                                    && poVGPItems.getDetailModel(lnVGPCtr).getItemType().equals("l")){
                                     poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPLabor.getDetailModel(lnCtr).getDSNo());
                                     lbExist = true;
                                     break;
@@ -468,7 +474,8 @@ public class Vehicle_Gatepass implements GTransaction{
                         //Check existence
                         for(lnVGPCtr = 0;lnVGPCtr <= poVGPItems.getDetailList().size() - 1;lnVGPCtr++){
                             if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode() != null){
-                                if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPParts.getDetailModel(lnCtr).getStockID())){
+                                if(poVGPItems.getDetailModel(lnVGPCtr).getItemCode().equals(poVSPParts.getDetailModel(lnCtr).getStockID())
+                                    && poVGPItems.getDetailModel(lnVGPCtr).getItemType().equals("p")){
                                     poVGPItems.getDetailModel(lnVGPCtr).setDSNo(poVSPParts.getDetailModel(lnCtr).getDSNo()); //set DSNo
                                     lbExist = true;
                                     break;
@@ -509,5 +516,26 @@ public class Vehicle_Gatepass implements GTransaction{
     
     public JSONObject loadDefaultItem(){
         return poDefltItems.loadDefaultItem();
+    }
+    
+    private JSONObject validateEntry(){
+        JSONObject loJSON = new JSONObject();
+        boolean lbDefltItemExist = false;
+        if(poController.getMasterModel().getSourceGr().replace(" ", "").toUpperCase().equals("VEHICLESALES")){
+            for(int lnCtr = 0; lnCtr <= poVGPItems.getDetailList().size()-1; lnCtr++){
+                if(poVGPItems.getDetailModel(lnCtr).getItemType().equals("d")){
+                    lbDefltItemExist = true;
+                    break;
+                }
+            }
+            
+            if(!lbDefltItemExist){
+                loJSON.put("result","error");
+                loJSON.put("message","Vehicle Components selection cannot be empty.");
+                return loJSON;
+            }
+        }
+        
+        return loJSON;
     }
 }

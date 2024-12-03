@@ -142,7 +142,7 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
                     obj = paRemDetail.get(lnCtr).deleteRecord();
                     if("error".equals((String) obj.get("result"))){
                         return obj;
-                    }
+                    } 
                 }
             }
         }
@@ -202,13 +202,7 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
     
     public Object removeDetail(int fnRow){
         JSONObject loJSON = new JSONObject();
-//        
-//        if(paDetail.get(fnRow).getEntryNo() != null){
-//            if(paDetail.get(fnRow).getEntryNo() != 0){
-//                RemoveDetail(fnRow);
-//            }
-//        }
-        
+        RemoveDetail(fnRow); //Populate removed item
         paDetail.remove(fnRow);
         return loJSON;
     }
