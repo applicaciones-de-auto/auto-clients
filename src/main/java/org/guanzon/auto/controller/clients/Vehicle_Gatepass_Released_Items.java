@@ -13,6 +13,7 @@ import org.guanzon.appdriver.base.GRider;
 import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
+import org.guanzon.appdriver.constant.RecordStatus;
 import org.guanzon.appdriver.iface.GTranDet;
 import org.guanzon.auto.model.clients.Model_Vehicle_Gatepass_Released_Items;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
@@ -97,7 +98,7 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
             if (MiscUtil.RecordCount(loRS) > 0) {
                 while(loRS.next()){
                         paDetail.add(new Model_Vehicle_Gatepass_Released_Items(poGRider));
-                        paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sItemCode"));
+                        paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sItemCode"), loRS.getString("sItemType"));
 //                        switch(loRS.getString("sItemType")){
 //                            case "l":
 //                                paDetail.get(paDetail.size() - 1).openRecord(loRS.getString("sTransNox"), loRS.getString("sLaborCde"));
@@ -221,12 +222,12 @@ public class Vehicle_Gatepass_Released_Items implements GTranDet {
         poJSON = new JSONObject();
         if (paRemDetail.size()<=0){
             paRemDetail.add(new Model_Vehicle_Gatepass_Released_Items(poGRider));
-            paRemDetail.get(0).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getItemCode());
+            paRemDetail.get(0).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getItemCode(),paDetail.get(fnRow).getItemType());
             poJSON.put("result", "success");
             poJSON.put("message", "added to remove record.");
         } else {
             paRemDetail.add(new Model_Vehicle_Gatepass_Released_Items(poGRider));
-            paRemDetail.get(paRemDetail.size()-1).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getItemCode());
+            paRemDetail.get(paRemDetail.size()-1).openRecord(paDetail.get(fnRow).getTransNo(),paDetail.get(fnRow).getItemCode(),paDetail.get(fnRow).getItemType());
             poJSON.put("result", "success");
             poJSON.put("message", "added to remove record.");
         }

@@ -173,7 +173,30 @@ public class Sales_Executive implements GRecord{
     }
     
     public JSONObject searchEmployee(String fsValue, boolean fbByCode) {
-        return poController.searchEmployee(fsValue,fbByCode);
+        JSONObject loJSON = new JSONObject();
+        loJSON = poController.searchEmployee(fsValue,fbByCode);
+        if(!"error".equals((String) loJSON.get("result"))){
+            poController.getModel().setClientID((String) loJSON.get("sClientID"));
+            poController.getModel().setCompnyNm((String) loJSON.get("sCompnyNm"));
+            poController.getModel().setClientTp((String) loJSON.get("cClientTp"));
+            poController.getModel().setFrstName((String) loJSON.get("sFrstName"));
+            poController.getModel().setMiddName((String) loJSON.get("sMiddName"));
+            poController.getModel().setLastName((String) loJSON.get("sLastName"));
+            poController.getModel().setMobileNo((String) loJSON.get("sMobileNo"));
+            poController.getModel().setEmailAdd((String) loJSON.get("sEmailAdd"));
+            poController.getModel().setAddress((String) loJSON.get("sAddressx"));
+        } else {
+            poController.getModel().setClientID("");
+            poController.getModel().setCompnyNm("");
+            poController.getModel().setClientTp("");
+            poController.getModel().setFrstName("");
+            poController.getModel().setMiddName("");
+            poController.getModel().setLastName("");
+            poController.getModel().setMobileNo("");
+            poController.getModel().setEmailAdd("");
+            poController.getModel().setAddress("");
+        }
+        return loJSON;
     }
     
     public ArrayList getVSPModelList(){return poController.getDetailList();}

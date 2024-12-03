@@ -6,15 +6,26 @@
 package org.guanzon.auto.main.clients;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.guanzon.appdriver.base.GRider;
+import org.guanzon.appdriver.base.MiscUtil;
+import org.guanzon.appdriver.base.SQLUtil;
 import org.guanzon.appdriver.constant.EditMode;
+import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GTransaction;
 import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Master;
 import org.guanzon.auto.controller.clients.Vehicle_Gatepass_Released_Items;
+import org.guanzon.auto.controller.parameter.Default_Released_Items_Checklist;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Labor;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Master;
 import org.guanzon.auto.controller.sales.VehicleSalesProposal_Parts;
+import org.guanzon.auto.model.service.Model_JobOrder_Master;
+import org.guanzon.auto.validator.clients.ValidatorFactory;
+import org.guanzon.auto.validator.clients.ValidatorInterface;
 import org.json.simple.JSONObject;
 
 /**
@@ -33,6 +44,7 @@ public class Vehicle_Gatepass implements GTransaction{
     
     Vehicle_Gatepass_Master poController;
     Vehicle_Gatepass_Released_Items poVGPItems;
+    Default_Released_Items_Checklist poDefltItems;
     
     VehicleSalesProposal_Master poVSPMaster;
     VehicleSalesProposal_Labor poVSPLabor;
@@ -41,6 +53,7 @@ public class Vehicle_Gatepass implements GTransaction{
     public Vehicle_Gatepass(GRider foAppDrver, boolean fbWtParent, String fsBranchCd){
         poController = new Vehicle_Gatepass_Master(foAppDrver,fbWtParent,fsBranchCd);
         poVGPItems = new Vehicle_Gatepass_Released_Items(foAppDrver);
+        poDefltItems = new Default_Released_Items_Checklist(foAppDrver,fbWtParent,fsBranchCd);
         
         poVSPMaster =  new VehicleSalesProposal_Master(foAppDrver,fbWtParent,fsBranchCd);
         poVSPLabor = new VehicleSalesProposal_Labor(foAppDrver);
@@ -192,6 +205,10 @@ public class Vehicle_Gatepass implements GTransaction{
         return poJSON;
     }
     
+    public JSONObject savePrint(boolean fsIsValidate) {
+        return poController.savePrinted(fsIsValidate);
+    }
+    
     private JSONObject checkData(JSONObject joValue){
         if(pnEditMode == EditMode.ADDNEW ||pnEditMode == EditMode.READY || pnEditMode == EditMode.UPDATE){
             if(joValue.containsKey("continue")){
@@ -317,6 +334,31 @@ public class Vehicle_Gatepass implements GTransaction{
                 }
             }
             
+            try {
+                String lsID = "";
+                Model_JobOrder_Master loEntity = new Model_JobOrder_Master(poGRider);
+                String lsSQL =  loEntity.makeSelectSQL();
+                lsSQL = MiscUtil.addCondition(lsSQL, " sSourceNo = " + SQLUtil.toSQL((String) loJSON.get("sTransNox")) 
+                                                        + " AND cTranStat = " + SQLUtil.toSQL(TransactionStatus.STATE_OPEN)
+                                                        );
+                System.out.println("PENDING JOB ORDER CHECK: " + lsSQL);
+                ResultSet loRS = poGRider.executeQuery(lsSQL);
+
+                if (MiscUtil.RecordCount(loRS) > 0){
+                    while(loRS.next()){
+                        lsID = loRS.getString("sDSNoxxxx");
+                    }
+
+                    MiscUtil.close(loRS);
+                    loJSON.put("result", "error");
+                    loJSON.put("message", "Found un-done Job Order with JO No."+lsID+"."
+                                            + "\n\nLinking aborted.");
+                    return loJSON;
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Vehicle_Gatepass.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
             /*
             REQUIRE DI AND SI UPON RELEASING FOR FINANCING
             cPayModex	2	BANK FINANCING
@@ -363,7 +405,6 @@ public class Vehicle_Gatepass implements GTransaction{
             poController.getMasterModel().setSourceCD((String) loJSON.get("sTransNox"));
             poController.getMasterModel().setSourceNo((String) loJSON.get("sVSPNOxxx"));
             poController.getMasterModel().setSourceGr("VEHICLE SALES");
-            
             
             loJSON = openVSPDetail((String) loJSON.get("sTransNox"));
             if(!"success".equals(loJSON.get("result"))){
@@ -463,4 +504,10 @@ public class Vehicle_Gatepass implements GTransaction{
         return loJSON;
     }
     
+    public Default_Released_Items_Checklist getDefaultItemModel(){ return poDefltItems;}
+    public ArrayList getDefaultItemList(){return poDefltItems.getDetailList();}
+    
+    public JSONObject loadDefaultItem(){
+        return poDefltItems.loadDefaultItem();
+    }
 }

@@ -167,7 +167,8 @@ public class Service_Mechanic_Master implements GRecord {
                 }
                 
                 CancelForm cancelform = new CancelForm();
-                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(), "SERVICE MECHANIC")) {
+//                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getClientID(), "SERVICE MECHANIC")) {
+                if (!cancelform.loadCancelWindow(poGRider, poModel.getClientID(), poModel.getTable())) {
                     poJSON.put("result", "error");
                     poJSON.put("message", "Deactivation failed.");
                     return poJSON;

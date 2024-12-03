@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +22,7 @@ import org.guanzon.appdriver.constant.TransactionStatus;
 import org.guanzon.appdriver.iface.GTransaction;
 import org.guanzon.auto.general.CancelForm;
 import org.guanzon.auto.general.SearchDialog;
+import org.guanzon.auto.general.TransactionStatusHistory;
 import org.guanzon.auto.model.clients.Model_Vehicle_Gatepass;
 import org.guanzon.auto.validator.clients.ValidatorFactory;
 import org.guanzon.auto.validator.clients.ValidatorInterface;
@@ -184,6 +186,32 @@ public class Vehicle_Gatepass_Master implements GTransaction {
         return poJSON;
     }
     
+    public JSONObject savePrinted(boolean fsIsValidate){
+        JSONObject loJSON = new JSONObject();
+        String lsOrigPrint = poModel.getPrinted();
+        poModel.setPrinted("1"); //Set to Printed
+        if(fsIsValidate){
+            ValidatorInterface validator = ValidatorFactory.make( ValidatorFactory.TYPE.Vehicle_Gatepass, poModel);
+            validator.setGRider(poGRider);
+            if (!validator.isEntryOkay()){
+                poModel.setPrinted(lsOrigPrint); //Revert to Previous Value
+                poJSON.put("result", "error");
+                poJSON.put("message", validator.getMessage());
+                return poJSON;
+            }
+        } else {
+            loJSON = saveTransaction();
+            if(!"error".equals((String) loJSON.get("result"))){
+                TransactionStatusHistory loEntity = new TransactionStatusHistory(poGRider);
+                loJSON = loEntity.updateStatusHistory(poModel.getTransNo(), poModel.getTable(), "VGP", "5", "PRINT"); //5 = STATE_PRINTED
+                if("error".equals((String) loJSON.get("result"))){
+                    return loJSON;
+                }
+            }
+        }
+        return loJSON;
+    }
+    
     @Override
     public JSONObject deleteTransaction(String string) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -221,7 +249,8 @@ public class Vehicle_Gatepass_Master implements GTransaction {
                 } 
 
                 CancelForm cancelform = new CancelForm();
-                if (!cancelform.loadCancelWindow(poGRider, poModel.getTransNo(), poModel.getTransNo(), "VGP")) {
+//                if (!cancelform.loadCancelWindow(poGRider, poModel.getTransNo(), poModel.getTransNo(), "VGP")) {
+                if (!cancelform.loadCancelWindow(poGRider, poModel.getTransNo(),  poModel.getTable())) {
                     poJSON.put("result", "error");
                     poJSON.put("message", "Cancellation failed.");
                     return poJSON;
