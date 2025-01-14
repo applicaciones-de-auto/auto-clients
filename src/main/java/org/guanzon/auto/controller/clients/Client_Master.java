@@ -258,6 +258,7 @@ public class Client_Master implements GRecord{
 
     @Override
     public JSONObject searchRecord(String fsValue, boolean fbByCode) {
+        String lsCondition = "";
         String lsHeader = "ID»Name»Address»Client Type"; // »Client Type
         String lsColName = "sClientID»sCompnyNm»xAddressx»sClientTp"; //"sClientID»sCompnyNm»xAddressx»sLastName»sFrstName»sMiddName»sSuffixNm»sClientTp
         //String lsColCrit = "a.sClientID»a.sCompnyNm»CONCAT(bb.sHouseNox, ' ', bb.sAddressx, ', ', c.sTownName, ' ', d.sProvName)";
@@ -295,15 +296,19 @@ public class Client_Master implements GRecord{
 //                                        lsColCrit, 
 //                                        fbByCode ? 0 :1);
         
+        if(!fbByCode){
+            lsCondition = " WHERE a.sCompnyNm LIKE " + SQLUtil.toSQL(fsValue + "%") ;
+        }
+        
         loJSON = SearchDialog.jsonSearch(
                 poGRider,
                 lsSQL,
-                    fsValue,
+                    lsCondition,
                 lsHeader,//"Client ID»Customer Name", //»Address
                 lsColName, //"sClientID»sCompnyNm", //»CONCAT(bb.sHouseNox, ' ', bb.sAddressx, ', ', c.sTownName, ' ', d.sProvName)
                 "0.2D»0.3D»0.5D»0.2D", 
                 "CUSTOMER",
-                0);
+                fbByCode ? 0 : 1);
             
         
         if (loJSON != null) {
